@@ -9,6 +9,9 @@ import Repo.DonationRepository;
 import Model.Distribution;
 import Repo.DistributionRepository;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -180,4 +183,23 @@ public class MainFrame extends JFrame {
     public double saldoUang() {
         return totalUangMasuk() - totalUangKeluar();
     }
+
+    public Map<java.time.YearMonth, Double> getMonthlyUangMasukLast6Months() {
+        Map<java.time.YearMonth, Double> map = new HashMap<>();
+        for (Model.Donation d : getDonations()) {
+            if ("UANG".equalsIgnoreCase(d.getJenis())) {
+                java.time.YearMonth ym = java.time.YearMonth.from(d.getTanggal());
+                map.put(ym, map.getOrDefault(ym, 0.0) + d.getNominal());
+            }
+        }
+        // filter hanya 6 bulan terakhir (biar rapi)
+        java.time.YearMonth now = java.time.YearMonth.now();
+        Map<java.time.YearMonth, Double> out = new HashMap<>();
+        for (int i = 0; i < 6; i++) {
+            java.time.YearMonth k = now.minusMonths(i);
+            out.put(k, map.getOrDefault(k, 0.0));
+        }
+        return out;
+    }
+
 }
