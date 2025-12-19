@@ -7,6 +7,9 @@ import Model.Donation;
 import Model.Donor;
 import java.time.format.DateTimeParseException;
 
+import Model.Distribution;
+import java.time.format.DateTimeParseException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
@@ -24,6 +27,20 @@ public class FormPanel extends JPanel {
 
     private final JLabel title = new JLabel();
 
+    private boolean editModeDistribution = false;
+    private Distribution editingDistribution = null;
+
+    private final JTextField txtSalurId = new JTextField();
+    private final JTextField txtSalurTanggal = new JTextField(); // yyyy-MM-dd
+    private final JTextField txtPenerima = new JTextField();
+    private final JComboBox<String> cmbSalurJenis = new JComboBox<>(new String[]{"UANG", "BARANG"});
+    private final JTextField txtSalurKategori = new JTextField();
+    private final JTextField txtSalurNominal = new JTextField();
+    private final JTextField txtSalurNamaBarang = new JTextField();
+    private final JSpinner spSalurJumlahBarang = new JSpinner(new SpinnerNumberModel(1, 1, 100000, 1));
+    private final JTextArea txtSalurCatatan = new JTextArea(3, 20);
+
+
     public FormPanel(MainFrame app) {
         this.app = app;
         setLayout(new BorderLayout(10, 10));
@@ -34,6 +51,7 @@ public class FormPanel extends JPanel {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Donatur", buildDonorForm());
         tabs.addTab("Donasi Masuk", buildDonationForm());
+        tabs.addTab("Penyaluran", buildDistributionForm());
 
         add(title, BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
@@ -132,6 +150,73 @@ public class FormPanel extends JPanel {
         wrap.add(actions, BorderLayout.SOUTH);
         return wrap;
     }
+
+    private JPanel buildDistributionForm() {
+        JPanel wrap = new JPanel(new BorderLayout(10,10));
+        JPanel form = new JPanel(new GridLayout(0, 2, 10, 10));
+
+        txtSalurId.setEditable(false);
+        txtSalurCatatan.setLineWrap(true);
+        txtSalurCatatan.setWrapStyleWord(true);
+
+        form.add(new JLabel("Salur ID"));
+        form.add(txtSalurId);
+
+        form.add(new JLabel("Tanggal (yyyy-MM-dd) *"));
+        form.add(txtSalurTanggal);
+
+        form.add(new JLabel("Penerima *"));
+        form.add(txtPenerima);
+
+        form.add(new JLabel("Jenis *"));
+        form.add(cmbSalurJenis);
+
+        form.add(new JLabel("Kategori"));
+        form.add(txtSalurKategori);
+
+        form.add(new JLabel("Nominal (UANG)"));
+        form.add(txtSalurNominal);
+
+        form.add(new JLabel("Nama Barang (BARANG)"));
+        form.add(txtSalurNamaBarang);
+
+        form.add(new JLabel("Jumlah Barang (BARANG)"));
+        form.add(spSalurJumlahBarang);
+
+        form.add(new JLabel("Catatan"));
+        form.add(new JScrollPane(txtSalurCatatan));
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JButton btnSave = new JButton("Simpan Penyaluran");
+        JButton btnCancel = new JButton("Batal");
+        actions.add(btnSave);
+        actions.add(btnCancel);
+
+        cmbSalurJenis.addActionListener(e -> toggleDistributionFields());
+
+        btnSave.addActionListener(e -> onSaveDistribution());
+        btnCancel.addActionListener(e -> {
+            clearDistribution();
+            app.showScreen(MainFrame.SCREEN_LIST);
+        });
+
+        wrap.add(form, BorderLayout.CENTER);
+        wrap.add(actions, BorderLayout.SOUTH);
+
+        toggleDistributionFields();
+        return wrap;
+    }
+
+    private void toggleDistributionFields() {
+        String jenis = (String) cmbSalurJenis.getSelectedItem();
+        boolean uang = "UANG".equalsIgnoreCase(jenis);
+
+        txtSalurNominal.setEnabled(uang);
+
+        txtSalurNamaBarang.setEnabled(!uang);
+        spSalurJumlahBarang.setEnabled(!uang);
+    }
+
 
     private void toggleDonationFields() {
         String jenis = (String) cmbJenis.getSelectedItem();
@@ -357,4 +442,144 @@ public class FormPanel extends JPanel {
     private final JSpinner spJumlahBarang = new JSpinner(new SpinnerNumberModel(1, 1, 100000, 1));
     private final JTextArea txtCatatan = new JTextArea(3, 20);
 
+    public void setModeCreateDistribution() {
+        editModeDistribution = false;
+        editingDistribution = null;
+        title.setText("Tambah Penyaluran");
+
+        txtSalurId.setText(Util.IdGenerator.nextDistributionId(app.getDistributions()));
+        txtSalurTanggal.setText(java.time.LocalDate.now().toString());
+        txtPenerima.setText("");
+        cmbSalurJenis.setSelectedItem("UANG");
+        txtSalurKategori.setText("");
+        txtSalurNominal.setText("");
+        txtSalurNamaBarang.setText("");
+        spSalurJumlahBarang.setValue(1);
+        txtSalurCatatan.setText("");
+
+        toggleDistributionFields();
+    }
+
+    public void setModeEditDistribution(Distribution d) {
+        editModeDistribution = true;
+        editingDistribution = d;
+        title.setText("Edit Penyaluran");
+
+        txtSalurId.setText(d.getSalurId());
+        txtSalurTanggal.setText(d.getTanggal().toString());
+        txtPenerima.setText(d.getPenerima());
+        cmbSalurJenis.setSelectedItem(d.getJenis());
+        txtSalurKategori.setText(d.getKategori());
+        txtSalurNominal.setText(String.valueOf(d.getNominal()));
+        txtSalurNamaBarang.setText(d.getNamaBarang());
+        spSalurJumlahBarang.setValue(Math.max(1, d.getJumlahBarang()));
+        txtSalurCatatan.setText(d.getCatatan());
+
+        toggleDistributionFields();
+    }
+
+    private void onSaveDistribution() {
+        try {
+            String id = txtSalurId.getText().trim();
+            String tanggalStr = txtSalurTanggal.getText().trim();
+            String penerima = txtPenerima.getText().trim();
+            String jenis = (String) cmbSalurJenis.getSelectedItem();
+            String kategori = txtSalurKategori.getText().trim();
+            String catatan = txtSalurCatatan.getText().trim();
+
+            if (tanggalStr.isEmpty() || penerima.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tanggal dan Penerima wajib diisi!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            java.time.LocalDate tanggal;
+            try {
+                tanggal = java.time.LocalDate.parse(tanggalStr);
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Format tanggal harus yyyy-MM-dd", "Validasi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double nominal = 0;
+            String namaBarang = "";
+            int jumlahBarang = 0;
+
+            if ("UANG".equalsIgnoreCase(jenis)) {
+                String n = txtSalurNominal.getText().trim();
+                if (n.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Nominal wajib diisi untuk penyaluran UANG!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                try { nominal = Double.parseDouble(n); }
+                catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Nominal harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                if (nominal <= 0) {
+                    JOptionPane.showMessageDialog(this, "Nominal harus > 0!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // Validasi saldo (nilai plus)
+                double saldoSaatIni = app.saldoUang();
+                // Jika edit, saldo harus dihitung dengan "mengembalikan" nominal lama
+                if (editModeDistribution && editingDistribution != null && "UANG".equalsIgnoreCase(editingDistribution.getJenis())) {
+                    saldoSaatIni += editingDistribution.getNominal();
+                }
+                if (nominal > saldoSaatIni) {
+                    JOptionPane.showMessageDialog(this,
+                            "Saldo tidak cukup!\nSaldo saat ini: " + saldoSaatIni,
+                            "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+            } else {
+                namaBarang = txtSalurNamaBarang.getText().trim();
+                jumlahBarang = (int) spSalurJumlahBarang.getValue();
+
+                if (namaBarang.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Nama barang wajib diisi untuk penyaluran BARANG!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                if (jumlahBarang <= 0) {
+                    JOptionPane.showMessageDialog(this, "Jumlah barang harus > 0!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            if (!editModeDistribution) {
+                Model.Distribution d = new Model.Distribution(id, tanggal, penerima, jenis, kategori, nominal, namaBarang, jumlahBarang, catatan);
+                app.getDistributions().add(d);
+            } else {
+                editingDistribution.setTanggal(tanggal);
+                editingDistribution.setPenerima(penerima);
+                editingDistribution.setJenis(jenis);
+                editingDistribution.setKategori(kategori);
+                editingDistribution.setNominal(nominal);
+                editingDistribution.setNamaBarang(namaBarang);
+                editingDistribution.setJumlahBarang(jumlahBarang);
+                editingDistribution.setCatatan(catatan);
+            }
+
+            app.persistDistributions();
+            app.refreshAll();
+            clearDistribution();
+            app.showScreen(MainFrame.SCREEN_LIST);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Terjadi error:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void clearDistribution() {
+        txtSalurId.setText("");
+        txtSalurTanggal.setText("");
+        txtPenerima.setText("");
+        txtSalurKategori.setText("");
+        txtSalurNominal.setText("");
+        txtSalurNamaBarang.setText("");
+        spSalurJumlahBarang.setValue(1);
+        txtSalurCatatan.setText("");
+    }
 }

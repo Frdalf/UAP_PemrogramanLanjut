@@ -23,17 +23,13 @@ public class DashboardPanel extends JPanel {
     public void refresh() {
         int totalDonor = app.getDonors().size();
 
-        double totalUang = 0;
-        int totalBarang = 0;
-
-        for (Model.Donation d : app.getDonations()) {
-            if ("UANG".equalsIgnoreCase(d.getJenis())) totalUang += d.getNominal();
-            if ("BARANG".equalsIgnoreCase(d.getJenis())) totalBarang += d.getJumlahBarang();
-        }
+        double uangMasuk = app.totalUangMasuk();
+        double uangKeluar = app.totalUangKeluar();
+        double saldo = app.saldoUang();
 
         lblTotalDonor.setText("Total Donatur: " + totalDonor +
-                " | Total Donasi Uang: " + totalUang +
-                " | Total Barang Masuk: " + totalBarang);
+                " | Uang Masuk: " + uangMasuk +
+                " | Uang Keluar: " + uangKeluar +
+                " | Saldo: " + saldo);
     }
-
 }

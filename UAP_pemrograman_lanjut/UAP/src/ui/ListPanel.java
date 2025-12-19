@@ -8,9 +8,11 @@ public class ListPanel extends JPanel {
 
     private final DonorTab donorTab;
     private final DonationTab donationTab;
+    private final DistributionTab distributionTab;
 
     public ListPanel(MainFrame app) {
         this.app = app;
+
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
@@ -18,9 +20,11 @@ public class ListPanel extends JPanel {
 
         donorTab = new DonorTab(app);
         donationTab = new DonationTab(app);
+        distributionTab = new DistributionTab(app);
 
         tabs.addTab("Donatur", donorTab);
         tabs.addTab("Donasi Masuk", donationTab);
+        tabs.addTab("Penyaluran", distributionTab);
 
         add(tabs, BorderLayout.CENTER);
     }
@@ -28,5 +32,6 @@ public class ListPanel extends JPanel {
     public void refreshAllTables() {
         donorTab.refreshTable();
         donationTab.refreshTable();
+        distributionTab.refreshTable();
     }
 }

@@ -33,4 +33,17 @@ public class IdGenerator {
         return String.format("DNS%03d", max + 1);
     }
 
+    public static String nextDistributionId(java.util.List<Model.Distribution> list) {
+        int max = 0;
+        for (Model.Distribution d : list) {
+            String id = d.getSalurId(); // SAL001
+            if (id != null && id.startsWith("SAL")) {
+                try {
+                    int num = Integer.parseInt(id.substring(3));
+                    if (num > max) max = num;
+                } catch (Exception ignored) {}
+            }
+        }
+        return String.format("SAL%03d", max + 1);
+    }
 }
