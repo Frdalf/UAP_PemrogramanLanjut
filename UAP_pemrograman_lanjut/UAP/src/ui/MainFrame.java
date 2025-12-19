@@ -3,6 +3,9 @@ package ui;
 import Model.Donor;
 import Repo.DonorRepository;
 
+import Model.Donation;
+import Repo.DonationRepository;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,6 +25,10 @@ public class MainFrame extends JFrame {
     private final DonorRepository donorRepo = new DonorRepository("src/Data/donors.csv");
     private final List<Donor> donors = new ArrayList<>();
 
+    private final DonationRepository donationRepo = new DonationRepository("src/Data/donation.csv");
+    private final List<Donation> donations = new ArrayList<>();
+
+
     private final DashboardPanel dashboardPanel;
     private final ListPanel listPanel;
     private final FormPanel formPanel;
@@ -35,6 +42,8 @@ public class MainFrame extends JFrame {
 
         // load data awal dari CSV
         donors.addAll(donorRepo.loadAll());
+        donations.addAll(donationRepo.loadAll());
+
 
         // Navbar
         JPanel nav = new JPanel(new GridLayout(0, 1, 10, 10));
@@ -49,6 +58,11 @@ public class MainFrame extends JFrame {
         nav.add(btnList);
         nav.add(btnForm);
         nav.add(btnReport);
+
+        JButton btnDonationForm = new JButton("Input Donasi");
+        nav.add(btnDonationForm);
+        btnDonationForm.addActionListener(e -> openNewDonationForm());
+
 
         // Panels
         dashboardPanel = new DashboardPanel(this);
@@ -74,6 +88,22 @@ public class MainFrame extends JFrame {
         showScreen(SCREEN_DASHBOARD);
     }
 
+    public void openNewDonationForm() {
+        formPanel.setModeCreateDonation();
+        showScreen(SCREEN_FORM);
+    }
+
+    public void openEditDonationForm(Donation donation) {
+        formPanel.setModeEditDonation(donation);
+        showScreen(SCREEN_FORM);
+    }
+
+    public List<Donation> getDonations() { return donations; }
+
+    public void persistDonations() {
+        donationRepo.saveAll(donations);
+    }
+
     public void showScreen(String screen) {
         cardLayout.show(content, screen);
     }
@@ -82,10 +112,6 @@ public class MainFrame extends JFrame {
     public List<Donor> getDonors() { return donors; }
     public DonorRepository getDonorRepo() { return donorRepo; }
 
-    public void refreshAll() {
-        dashboardPanel.refresh();
-        listPanel.refreshTable();
-    }
 
     // ====== Navigasi Form ======
     public void openNewDonorForm() {
@@ -101,5 +127,10 @@ public class MainFrame extends JFrame {
     // ====== Save to CSV ======
     public void persistDonors() {
         donorRepo.saveAll(donors);
+    }
+
+    public void refreshAll() {
+        dashboardPanel.refresh();
+        listPanel.refreshAllTables();
     }
 }
