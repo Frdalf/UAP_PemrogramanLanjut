@@ -6,6 +6,10 @@ import Repo.DonorRepository;
 import Model.Donation;
 import Repo.DonationRepository;
 
+import Model.Distribution;
+import Repo.DistributionRepository;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,6 +32,9 @@ public class MainFrame extends JFrame {
     private final DonationRepository donationRepo = new DonationRepository("src/Data/donation.csv");
     private final List<Donation> donations = new ArrayList<>();
 
+    private final DistributionRepository distributionRepo = new DistributionRepository("src/Data/distribution.csv");
+    private final List<Distribution> distributions = new ArrayList<>();
+
 
     private final DashboardPanel dashboardPanel;
     private final ListPanel listPanel;
@@ -43,6 +50,7 @@ public class MainFrame extends JFrame {
         // load data awal dari CSV
         donors.addAll(donorRepo.loadAll());
         donations.addAll(donationRepo.loadAll());
+        distributions.addAll(distributionRepo.loadAll());
 
 
         // Navbar
@@ -63,6 +71,9 @@ public class MainFrame extends JFrame {
         nav.add(btnDonationForm);
         btnDonationForm.addActionListener(e -> openNewDonationForm());
 
+        JButton btnDistributionForm = new JButton("Input Penyaluran");
+        nav.add(btnDistributionForm);
+        btnDistributionForm.addActionListener(e -> openNewDistributionForm());
 
         // Panels
         dashboardPanel = new DashboardPanel(this);
@@ -112,6 +123,11 @@ public class MainFrame extends JFrame {
     public List<Donor> getDonors() { return donors; }
     public DonorRepository getDonorRepo() { return donorRepo; }
 
+    public List<Distribution> getDistributions() { return distributions; }
+
+    public void persistDistributions() {
+        distributionRepo.saveAll(distributions);
+    }
 
     // ====== Navigasi Form ======
     public void openNewDonorForm() {
@@ -129,8 +145,39 @@ public class MainFrame extends JFrame {
         donorRepo.saveAll(donors);
     }
 
+    public void openNewDistributionForm() {
+        formPanel.setModeCreateDistribution();
+        showScreen(SCREEN_FORM);
+    }
+
+    public void openEditDistributionForm(Distribution d) {
+        formPanel.setModeEditDistribution(d);
+        showScreen(SCREEN_FORM);
+    }
+
     public void refreshAll() {
         dashboardPanel.refresh();
         listPanel.refreshAllTables();
+        reportPanel.refresh();
+    }
+
+    public double totalUangMasuk() {
+        double sum = 0;
+        for (Model.Donation d : donations) {
+            if ("UANG".equalsIgnoreCase(d.getJenis())) sum += d.getNominal();
+        }
+        return sum;
+    }
+
+    public double totalUangKeluar() {
+        double sum = 0;
+        for (Distribution d : distributions) {
+            if ("UANG".equalsIgnoreCase(d.getJenis())) sum += d.getNominal();
+        }
+        return sum;
+    }
+
+    public double saldoUang() {
+        return totalUangMasuk() - totalUangKeluar();
     }
 }
