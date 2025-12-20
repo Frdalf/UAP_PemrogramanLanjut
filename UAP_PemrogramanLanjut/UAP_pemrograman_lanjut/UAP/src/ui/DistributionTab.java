@@ -49,6 +49,7 @@ public class DistributionTab extends JPanel {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         gc.gridx = 0;
+        gc.weightx = 0;
         filter.add(new JLabel("Search:"), gc);
 
         gc.gridx = 1;
@@ -68,31 +69,42 @@ public class DistributionTab extends JPanel {
         top.add(title, BorderLayout.NORTH);
         top.add(filter, BorderLayout.CENTER);
 
-        // ===== TABLE =====
+        // ===== TABLE (SAMAKAN persis dengan DonationTab) =====
         JScrollPane sp = new JScrollPane(table);
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        sp.setOpaque(false);
+        sp.getViewport().setOpaque(false);
+
         SimpleTableTheme.applyBlue(table, sp);
 
-        // IMPORTANT: rata kanan tapi tetap ikut theme (nggak putih)
+        // wrapper rounded + padding (ini yang bikin posisi isi tabel “rapi”)
+        RoundedPanel tableWrap = new RoundedPanel(18)
+                .setBackgroundColor(new Color(10, 20, 36));
+        tableWrap.setLayout(new BorderLayout());
+        tableWrap.setBorder(new EmptyBorder(12, 12, 12, 12));
+        tableWrap.add(sp, BorderLayout.CENTER);
+
+        // Nominal (col 5) & Qty (col 7) rata kanan, tapi tetap ikut zebra theme
         installRightAlignedColumns();
 
         // ===== ACTIONS =====
         PillButton btnAdd = new PillButton("+ Tambah");
 
-        PillButton btnEdit = new PillButton("✎ Edit")
-                .setColors(
-                        new Color(90, 100, 120),
-                        new Color(115, 125, 150),
-                        new Color(70, 80, 100),
-                        new Color(55, 60, 75)
-                );
+        PillButton btnEdit = new PillButton("✎ Edit");
+        btnEdit.setColors(
+                new Color(90, 100, 120),
+                new Color(115, 125, 150),
+                new Color(70, 80, 100),
+                new Color(55, 60, 75)
+        );
 
-        PillButton btnDelete = new PillButton("🗑 Hapus")
-                .setColors(
-                        new Color(200, 55, 65),
-                        new Color(225, 70, 80),
-                        new Color(175, 45, 55),
-                        new Color(140, 35, 45)
-                );
+        PillButton btnDelete = new PillButton("🗑 Hapus");
+        btnDelete.setColors(
+                new Color(200, 55, 65),
+                new Color(225, 70, 80),
+                new Color(175, 45, 55),
+                new Color(140, 35, 45)
+        );
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         actions.setOpaque(false);
@@ -100,8 +112,9 @@ public class DistributionTab extends JPanel {
         actions.add(btnEdit);
         actions.add(btnDelete);
 
+        // ===== LAYOUT =====
         add(top, BorderLayout.NORTH);
-        add(sp, BorderLayout.CENTER);
+        add(tableWrap, BorderLayout.CENTER);   // <- PENTING: bukan sp langsung
         add(actions, BorderLayout.SOUTH);
 
         // ===== EVENTS =====
@@ -125,18 +138,20 @@ public class DistributionTab extends JPanel {
             public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column
             ) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                // Ambil renderer default theme untuk dapat warna zebra & selection
+                // renderer theme (buat warna zebra + selection)
                 Component themed = table.getDefaultRenderer(Object.class)
                         .getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                c.setBackground(themed.getBackground());
-                c.setForeground(themed.getForeground());
+                // renderer ini (buat alignment kanan)
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                setOpaque(true);
+                setBackground(themed.getBackground());
+                setForeground(themed.getForeground());
 
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
-                return c;
+                return this;
             }
         };
 
@@ -188,7 +203,7 @@ public class DistributionTab extends JPanel {
             });
         }
 
-        // pastikan renderer tetap kepake setelah refresh
+        // jaga-jaga kalau column model ke-reset di beberapa kasus
         installRightAlignedColumns();
     }
 
