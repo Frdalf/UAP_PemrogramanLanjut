@@ -49,6 +49,7 @@ public class DistributionTab extends JPanel {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         gc.gridx = 0;
+        gc.weightx = 0;
         filter.add(new JLabel("Search:"), gc);
 
         gc.gridx = 1;
@@ -68,31 +69,43 @@ public class DistributionTab extends JPanel {
         top.add(title, BorderLayout.NORTH);
         top.add(filter, BorderLayout.CENTER);
 
-        // ===== TABLE =====
+        // ===== TABLE (Rounded + Theme) =====
         JScrollPane sp = new JScrollPane(table);
-        SimpleTableTheme.applyBlue(table, sp);
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        sp.setOpaque(false);
+        sp.getViewport().setOpaque(false);
 
-        // IMPORTANT: rata kanan tapi tetap ikut theme (nggak putih)
+        // Theme tabel (jangan pakai applyBlue(table, sp) kalau method itu mengubah viewport jadi opaque)
+        SimpleTableTheme.applyBlue(table);
+
+        // BUNGKUS biar rounded (ini kunci biar nggak “ngotak”)
+        RoundedPanel tableWrap = new RoundedPanel(18)
+                .setBackgroundColor(new Color(10, 20, 36));
+        tableWrap.setLayout(new BorderLayout());
+        tableWrap.setBorder(new EmptyBorder(12, 12, 12, 12));
+        tableWrap.add(sp, BorderLayout.CENTER);
+
+        // IMPORTANT: Nominal & Qty rata kanan tapi tetap ikut theme (nggak putih)
         installRightAlignedColumns();
 
         // ===== ACTIONS =====
         PillButton btnAdd = new PillButton("+ Tambah");
 
-        PillButton btnEdit = new PillButton("✎ Edit")
-                .setColors(
-                        new Color(90, 100, 120),
-                        new Color(115, 125, 150),
-                        new Color(70, 80, 100),
-                        new Color(55, 60, 75)
-                );
+        PillButton btnEdit = new PillButton("✎ Edit");
+        btnEdit.setColors(
+                new Color(90, 100, 120),
+                new Color(115, 125, 150),
+                new Color(70, 80, 100),
+                new Color(55, 60, 75)
+        );
 
-        PillButton btnDelete = new PillButton("🗑 Hapus")
-                .setColors(
-                        new Color(200, 55, 65),
-                        new Color(225, 70, 80),
-                        new Color(175, 45, 55),
-                        new Color(140, 35, 45)
-                );
+        PillButton btnDelete = new PillButton("🗑 Hapus");
+        btnDelete.setColors(
+                new Color(200, 55, 65),
+                new Color(225, 70, 80),
+                new Color(175, 45, 55),
+                new Color(140, 35, 45)
+        );
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         actions.setOpaque(false);
@@ -100,8 +113,9 @@ public class DistributionTab extends JPanel {
         actions.add(btnEdit);
         actions.add(btnDelete);
 
+        // ===== LAYOUT =====
         add(top, BorderLayout.NORTH);
-        add(sp, BorderLayout.CENTER);
+        add(tableWrap, BorderLayout.CENTER);
         add(actions, BorderLayout.SOUTH);
 
         // ===== EVENTS =====
@@ -116,27 +130,38 @@ public class DistributionTab extends JPanel {
     }
 
     /**
-     * Biar Nominal (col 5) & Qty (col 7) rata kanan
-     * TANPA bikin background putih (ikut zebra dari SimpleTableTheme).
+     * Renderer angka rata kanan + ikut warna zebra/selection (biar nggak jadi putih/kaku).
+     * Col: Nominal (5) & Qty (7)
      */
     private void installRightAlignedColumns() {
+        // Samakan dengan warna di SimpleTableTheme kamu (kalau beda, tinggal sesuaikan)
+        final Color bgOdd  = new Color(18, 29, 46);
+        final Color bgEven = new Color(23, 38, 59);
+        final Color fg     = new Color(235, 241, 255);
+        final Color selBg  = new Color(46, 117, 182);
+        final Color selFg  = Color.WHITE;
+
         DefaultTableCellRenderer right = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column
             ) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                // Ambil renderer default theme untuk dapat warna zebra & selection
-                Component themed = table.getDefaultRenderer(Object.class)
-                        .getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                c.setBackground(themed.getBackground());
-                c.setForeground(themed.getForeground());
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
-                return c;
+
+                if (isSelected) {
+                    setBackground(selBg);
+                    setForeground(selFg);
+                } else {
+                    setBackground((row % 2 == 0) ? bgEven : bgOdd);
+                    setForeground(fg);
+                }
+
+                setOpaque(true);
+                setFont(getFont().deriveFont(Font.PLAIN, 12.5f));
+                return this;
             }
         };
 
@@ -188,7 +213,7 @@ public class DistributionTab extends JPanel {
             });
         }
 
-        // pastikan renderer tetap kepake setelah refresh
+        // pastikan tetap kepasang setelah refresh
         installRightAlignedColumns();
     }
 
