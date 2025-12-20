@@ -59,7 +59,7 @@ public class ReportPanel extends JPanel {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         cmbFilter.addActionListener(e -> refresh());
-        txtSearch.getDocument().addDocumentListener((DonorTab.SimpleDocumentListener) e -> refresh());
+        txtSearch.getDocument().addDocumentListener((SimpleDocumentListener) e -> refresh());
 
         txtInsights.setEditable(false);
         txtInsights.setLineWrap(true);
