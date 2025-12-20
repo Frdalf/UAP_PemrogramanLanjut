@@ -1,18 +1,15 @@
 package ui;
 
 import Model.Donor;
-import Util.IdGenerator;
-
 import Model.Donation;
-import Model.Donor;
-import java.time.format.DateTimeParseException;
-
 import Model.Distribution;
-import java.time.format.DateTimeParseException;
+import Util.IdGenerator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 
 public class FormPanel extends JPanel {
     private final MainFrame app;
@@ -26,6 +23,16 @@ public class FormPanel extends JPanel {
     private final JTextArea txtAlamat = new JTextArea(4, 20);
 
     private final JLabel title = new JLabel();
+
+    // tabs harus jadi field supaya bisa kita ubah-ubah
+    private final JTabbedPane tabs = new JTabbedPane();
+
+    // simpan panel tiap tab, biar bisa dipasang/lepas
+    private JPanel donorTabPanel;
+    private JPanel donationTabPanel;
+    private JPanel distributionTabPanel;
+
+    private enum TabMode { DONOR, DONATION, DISTRIBUTION, ALL }
 
     private boolean editModeDistribution = false;
     private Distribution editingDistribution = null;
@@ -48,16 +55,36 @@ public class FormPanel extends JPanel {
 
         title.setFont(title.getFont().deriveFont(Font.BOLD, 20f));
 
-        JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Donatur", buildDonorForm());
-        tabs.addTab("Donasi Masuk", buildDonationForm());
-        tabs.addTab("Penyaluran", buildDistributionForm());
+        // build panel tab sekali saja
+        donorTabPanel = buildDonorForm();
+        donationTabPanel = buildDonationForm();
+        distributionTabPanel = buildDistributionForm();
 
         add(title, BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
 
         // default
-        setModeCreate();
+        setModeCreate(); // ini otomatis akan show hanya tab Donatur
+    }
+
+    private void applyTabMode(TabMode mode) {
+        tabs.removeAll();
+
+        if (mode == TabMode.DONOR || mode == TabMode.ALL) {
+            tabs.addTab("Donatur", donorTabPanel);
+        }
+        if (mode == TabMode.DONATION || mode == TabMode.ALL) {
+            tabs.addTab("Donasi Masuk", donationTabPanel);
+        }
+        if (mode == TabMode.DISTRIBUTION || mode == TabMode.ALL) {
+            tabs.addTab("Penyaluran", distributionTabPanel);
+        }
+
+        // karena kalau mode single tab, index selalu 0
+        if (tabs.getTabCount() > 0) tabs.setSelectedIndex(0);
+
+        tabs.revalidate();
+        tabs.repaint();
     }
 
     private JPanel buildDonorForm() {
@@ -229,6 +256,8 @@ public class FormPanel extends JPanel {
     }
 
     public void setModeCreateDonation() {
+        applyTabMode(TabMode.DONATION);
+
         editModeDonation = false;
         editingDonation = null;
         title.setText("Tambah Donasi Masuk");
@@ -373,6 +402,8 @@ public class FormPanel extends JPanel {
 
 
     public void setModeCreate() {
+        applyTabMode(TabMode.DONOR);
+
         editMode = false;
         editing = null;
         title.setText("Tambah Donatur");
@@ -381,6 +412,8 @@ public class FormPanel extends JPanel {
     }
 
     public void setModeEdit(Donor donor) {
+        applyTabMode(TabMode.DONOR);
+
         editMode = true;
         editing = donor;
         title.setText("Edit Donatur");
@@ -443,6 +476,8 @@ public class FormPanel extends JPanel {
     private final JTextArea txtCatatan = new JTextArea(3, 20);
 
     public void setModeCreateDistribution() {
+        applyTabMode(TabMode.DISTRIBUTION);
+
         editModeDistribution = false;
         editingDistribution = null;
         title.setText("Tambah Penyaluran");
@@ -461,6 +496,8 @@ public class FormPanel extends JPanel {
     }
 
     public void setModeEditDistribution(Distribution d) {
+        applyTabMode(TabMode.DISTRIBUTION);
+
         editModeDistribution = true;
         editingDistribution = d;
         title.setText("Edit Penyaluran");

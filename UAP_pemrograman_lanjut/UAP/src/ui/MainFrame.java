@@ -44,6 +44,10 @@ public class MainFrame extends JFrame {
     private final FormPanel formPanel;
     private final ReportPanel reportPanel;
 
+    private NavButton navDashboard, navList, navInputDonor, navReport, navInputDonasi, navInputPenyaluran;
+    private java.util.List<NavButton> navButtons;
+
+
     public MainFrame() {
         setTitle("Sistem Manajemen Donasi");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,30 +59,46 @@ public class MainFrame extends JFrame {
         donations.addAll(donationRepo.loadAll());
         distributions.addAll(distributionRepo.loadAll());
 
+        // ===== Sidebar (Nav) =====
+        JPanel nav = new JPanel();
+        nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
+        nav.setBackground(new Color(245, 246, 248));
+        nav.setBorder(BorderFactory.createEmptyBorder(16, 12, 16, 12));
+        nav.setPreferredSize(new Dimension(190, 0));
 
-        // Navbar
-        JPanel nav = new JPanel(new GridLayout(0, 1, 10, 10));
-        nav.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        navDashboard = new NavButton("Dashboard");
+        navList = new NavButton("List Donatur");
+        navInputDonor = new NavButton("Input Donatur");
+        navReport = new NavButton("Laporan/History");
+        navInputDonasi = new NavButton("Input Donasi");
+        navInputPenyaluran = new NavButton("Input Penyaluran");
 
-        JButton btnDashboard = new JButton("Dashboard");
-        JButton btnList = new JButton("List Donatur");
-        JButton btnForm = new JButton("Input Donatur");
-        JButton btnReport = new JButton("Laporan/History");
+        navButtons = java.util.List.of(
+                navDashboard, navList, navInputDonor, navReport, navInputDonasi, navInputPenyaluran
+        );
 
-        nav.add(btnDashboard);
-        nav.add(btnList);
-        nav.add(btnForm);
-        nav.add(btnReport);
+        nav.add(navDashboard);
+        nav.add(Box.createVerticalStrut(12));
+        nav.add(navList);
+        nav.add(Box.createVerticalStrut(12));
+        nav.add(navInputDonor);
+        nav.add(Box.createVerticalStrut(12));
+        nav.add(navReport);
+        nav.add(Box.createVerticalStrut(12));
+        nav.add(navInputDonasi);
+        nav.add(Box.createVerticalStrut(12));
+        nav.add(navInputPenyaluran);
+        nav.add(Box.createVerticalGlue());
 
-        JButton btnDonationForm = new JButton("Input Donasi");
-        nav.add(btnDonationForm);
-        btnDonationForm.addActionListener(e -> openNewDonationForm());
+        navDashboard.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navList.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navInputDonor.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navReport.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navInputDonasi.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navInputPenyaluran.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnDistributionForm = new JButton("Input Penyaluran");
-        nav.add(btnDistributionForm);
-        btnDistributionForm.addActionListener(e -> openNewDistributionForm());
 
-        // Panels
+        // ===== Panels =====
         dashboardPanel = new DashboardPanel(this);
         listPanel = new ListPanel(this);
         formPanel = new FormPanel(this);
@@ -89,23 +109,36 @@ public class MainFrame extends JFrame {
         content.add(formPanel, SCREEN_FORM);
         content.add(reportPanel, SCREEN_REPORT);
 
-        btnDashboard.addActionListener(e -> showScreen(SCREEN_DASHBOARD));
-        btnList.addActionListener(e -> showScreen(SCREEN_LIST));
-        btnForm.addActionListener(e -> openNewDonorForm());
-        btnReport.addActionListener(e -> showScreen(SCREEN_REPORT));
+        // ===== Action =====
+        navDashboard.addActionListener(e -> showScreen(SCREEN_DASHBOARD));
+        navList.addActionListener(e -> showScreen(SCREEN_LIST));
+        navInputDonor.addActionListener(e -> {
+            openNewDonorForm();
+            for (NavButton b : navButtons) b.setActive(false);
+            navInputDonor.setActive(true);
+        });
+        navReport.addActionListener(e -> showScreen(SCREEN_REPORT));
+        navInputDonasi.addActionListener(e -> openNewDonationForm());
+        navInputPenyaluran.addActionListener(e -> openNewDistributionForm());
 
+        // ===== Layout frame =====
         setLayout(new BorderLayout());
         add(nav, BorderLayout.WEST);
         add(content, BorderLayout.CENTER);
 
+        // ===== Default state =====
         refreshAll();
         showScreen(SCREEN_DASHBOARD);
     }
 
+
     public void openNewDonationForm() {
         formPanel.setModeCreateDonation();
         showScreen(SCREEN_FORM);
+        for (NavButton b : navButtons) b.setActive(false);
+        navInputDonasi.setActive(true);
     }
+
 
     public void openEditDonationForm(Donation donation) {
         formPanel.setModeEditDonation(donation);
@@ -120,6 +153,23 @@ public class MainFrame extends JFrame {
 
     public void showScreen(String screen) {
         cardLayout.show(content, screen);
+        setActiveNav(screen);
+    }
+
+    private void setActiveNav(String screen) {
+        if (navButtons == null) return;
+        for (NavButton b : navButtons) b.setActive(false);
+
+        switch (screen) {
+            case SCREEN_DASHBOARD -> navDashboard.setActive(true);
+            case SCREEN_LIST -> navList.setActive(true);
+            case SCREEN_REPORT -> navReport.setActive(true);
+            case SCREEN_FORM -> {
+                // kalau lagi di form, default aktifkan salah satu (opsional)
+                // biar gak "mati semua". Kamu bisa atur lebih spesifik nanti.
+                navInputDonor.setActive(true);
+            }
+        }
     }
 
     // ====== Akses data ======
@@ -136,7 +186,10 @@ public class MainFrame extends JFrame {
     public void openNewDonorForm() {
         formPanel.setModeCreate();
         showScreen(SCREEN_FORM);
+        for (NavButton b : navButtons) b.setActive(false);
+        navInputDonor.setActive(true);
     }
+
 
     public void openEditDonorForm(Donor donor) {
         formPanel.setModeEdit(donor);
@@ -151,7 +204,10 @@ public class MainFrame extends JFrame {
     public void openNewDistributionForm() {
         formPanel.setModeCreateDistribution();
         showScreen(SCREEN_FORM);
+        for (NavButton b : navButtons) b.setActive(false);
+        navInputPenyaluran.setActive(true);
     }
+
 
     public void openEditDistributionForm(Distribution d) {
         formPanel.setModeEditDistribution(d);
