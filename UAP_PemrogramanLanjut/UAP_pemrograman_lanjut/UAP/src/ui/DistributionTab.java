@@ -69,23 +69,22 @@ public class DistributionTab extends JPanel {
         top.add(title, BorderLayout.NORTH);
         top.add(filter, BorderLayout.CENTER);
 
-        // ===== TABLE (Rounded + Theme) =====
+        // ===== TABLE (SAMAKAN persis dengan DonationTab) =====
         JScrollPane sp = new JScrollPane(table);
         sp.setBorder(BorderFactory.createEmptyBorder());
         sp.setOpaque(false);
         sp.getViewport().setOpaque(false);
 
-        // Theme tabel (jangan pakai applyBlue(table, sp) kalau method itu mengubah viewport jadi opaque)
-        SimpleTableTheme.applyBlue(table);
+        SimpleTableTheme.applyBlue(table, sp);
 
-        // BUNGKUS biar rounded (ini kunci biar nggak “ngotak”)
+        // wrapper rounded + padding (ini yang bikin posisi isi tabel “rapi”)
         RoundedPanel tableWrap = new RoundedPanel(18)
                 .setBackgroundColor(new Color(10, 20, 36));
         tableWrap.setLayout(new BorderLayout());
         tableWrap.setBorder(new EmptyBorder(12, 12, 12, 12));
         tableWrap.add(sp, BorderLayout.CENTER);
 
-        // IMPORTANT: Nominal & Qty rata kanan tapi tetap ikut theme (nggak putih)
+        // Nominal (col 5) & Qty (col 7) rata kanan, tapi tetap ikut zebra theme
         installRightAlignedColumns();
 
         // ===== ACTIONS =====
@@ -115,7 +114,7 @@ public class DistributionTab extends JPanel {
 
         // ===== LAYOUT =====
         add(top, BorderLayout.NORTH);
-        add(tableWrap, BorderLayout.CENTER);
+        add(tableWrap, BorderLayout.CENTER);   // <- PENTING: bukan sp langsung
         add(actions, BorderLayout.SOUTH);
 
         // ===== EVENTS =====
@@ -130,37 +129,28 @@ public class DistributionTab extends JPanel {
     }
 
     /**
-     * Renderer angka rata kanan + ikut warna zebra/selection (biar nggak jadi putih/kaku).
-     * Col: Nominal (5) & Qty (7)
+     * Biar Nominal (col 5) & Qty (col 7) rata kanan
+     * TANPA bikin background putih (ikut zebra dari SimpleTableTheme).
      */
     private void installRightAlignedColumns() {
-        // Samakan dengan warna di SimpleTableTheme kamu (kalau beda, tinggal sesuaikan)
-        final Color bgOdd  = new Color(18, 29, 46);
-        final Color bgEven = new Color(23, 38, 59);
-        final Color fg     = new Color(235, 241, 255);
-        final Color selBg  = new Color(46, 117, 182);
-        final Color selFg  = Color.WHITE;
-
         DefaultTableCellRenderer right = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column
             ) {
+                // renderer theme (buat warna zebra + selection)
+                Component themed = table.getDefaultRenderer(Object.class)
+                        .getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // renderer ini (buat alignment kanan)
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                setOpaque(true);
+                setBackground(themed.getBackground());
+                setForeground(themed.getForeground());
 
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
-
-                if (isSelected) {
-                    setBackground(selBg);
-                    setForeground(selFg);
-                } else {
-                    setBackground((row % 2 == 0) ? bgEven : bgOdd);
-                    setForeground(fg);
-                }
-
-                setOpaque(true);
-                setFont(getFont().deriveFont(Font.PLAIN, 12.5f));
                 return this;
             }
         };
@@ -213,7 +203,7 @@ public class DistributionTab extends JPanel {
             });
         }
 
-        // pastikan tetap kepasang setelah refresh
+        // jaga-jaga kalau column model ke-reset di beberapa kasus
         installRightAlignedColumns();
     }
 
