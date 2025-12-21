@@ -49,6 +49,8 @@ public class ListPanel extends JPanel {
         tabs.setFont(new Font("SansSerif", Font.BOLD, 13));
         tabs.setOpaque(false);
         tabs.setBorder(BorderFactory.createEmptyBorder());
+        // Supaya tab tidak menampilkan focus rectangle (dotted) bawaan OS/LAF
+        tabs.setFocusable(false);
         tabs.setUI(new SoftTabsUI());
 
         donorTab = new DonorTab(app);
@@ -131,6 +133,19 @@ public class ListPanel extends JPanel {
                 g2.drawRoundRect(px, py, pw, ph, arc, arc);
             }
             g2.dispose();
+        }
+
+        @Override
+        protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
+                                      int x, int y, int w, int h, boolean isSelected) {
+            // Hilangkan border default BasicTabbedPaneUI (yang bikin tab kelihatan "kotak"/ada garis pemisah)
+        }
+
+        @Override
+        protected void paintFocusIndicator(Graphics g, int tabPlacement, Rectangle[] rects,
+                                           int tabIndex, Rectangle iconRect, Rectangle textRect,
+                                           boolean isSelected) {
+            // Hilangkan focus indicator (dotted rectangle) pada tab
         }
 
         @Override
