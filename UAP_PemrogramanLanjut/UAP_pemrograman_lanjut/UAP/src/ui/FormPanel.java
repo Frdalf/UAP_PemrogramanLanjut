@@ -6,6 +6,7 @@ import Model.Distribution;
 import Util.IdGenerator;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -23,6 +24,9 @@ public class FormPanel extends JPanel {
     private final JTextArea txtAlamat = new JTextArea(4, 20);
 
     private final JLabel title = new JLabel();
+
+    // Root background (soft gradient)
+    private final SoftFormUI.FormBackground root = new SoftFormUI.FormBackground();
 
     // tabs harus jadi field supaya bisa kita ubah-ubah
     private final JTabbedPane tabs = new JTabbedPane();
@@ -47,21 +51,34 @@ public class FormPanel extends JPanel {
     private final JSpinner spSalurJumlahBarang = new JSpinner(new SpinnerNumberModel(1, 1, 100000, 1));
     private final JTextArea txtSalurCatatan = new JTextArea(3, 20);
 
+    // wrapper field (untuk repaint saat enable/disable)
+    private SoftFormUI.IconField fSalurNominal;
+    private SoftFormUI.IconField fSalurNamaBarang;
+    private SoftFormUI.IconField fSalurJumlahBarang;
+
 
     public FormPanel(MainFrame app) {
         this.app = app;
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setLayout(new BorderLayout());
+        setOpaque(false);
 
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 20f));
+        root.setLayout(new BorderLayout(18, 18));
+        root.setBorder(new EmptyBorder(26, 26, 26, 26));
+        add(root, BorderLayout.CENTER);
+
+        title.setFont(new Font("SansSerif", Font.BOLD, 56));
+        title.setForeground(new Color(35, 120, 235));
 
         // build panel tab sekali saja
         donorTabPanel = buildDonorForm();
         donationTabPanel = buildDonationForm();
         distributionTabPanel = buildDistributionForm();
 
-        add(title, BorderLayout.NORTH);
-        add(tabs, BorderLayout.CENTER);
+        tabs.setOpaque(false);
+        tabs.setBorder(BorderFactory.createEmptyBorder());
+
+        root.add(title, BorderLayout.NORTH);
+        root.add(tabs, BorderLayout.CENTER);
 
         // default
         setModeCreate(); // ini otomatis akan show hanya tab Donatur
@@ -88,84 +105,129 @@ public class FormPanel extends JPanel {
     }
 
     private JPanel buildDonorForm() {
-        JPanel wrap = new JPanel(new BorderLayout(10,10));
+        JPanel outer = new JPanel(new BorderLayout(0, 10));
+        outer.setOpaque(false);
 
-        JPanel form = new JPanel(new GridLayout(0, 2, 10, 10));
+        JPanel pillRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pillRow.setOpaque(false);
+        pillRow.add(new SoftFormUI.PillLabel("Donatur"));
+        outer.add(pillRow, BorderLayout.NORTH);
+
+        SoftFormUI.CardPanel card = new SoftFormUI.CardPanel(26);
+        card.setLayout(new BorderLayout());
+        card.setBorder(new EmptyBorder(22, 22, 22, 22));
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+
         txtId.setEditable(false);
         txtAlamat.setLineWrap(true);
         txtAlamat.setWrapStyleWord(true);
 
-        form.add(new JLabel("Donor ID"));
-        form.add(txtId);
+        addRow(form, 0, label("Donor ID"), new SoftFormUI.IconField(SoftFormUI.IconType.ID, txtId));
+        addRow(form, 1, labelReq("Nama"), new SoftFormUI.IconField(SoftFormUI.IconType.USER, txtNama));
+        addRow(form, 2, label("Kontak"), new SoftFormUI.IconField(SoftFormUI.IconType.PHONE, txtKontak));
 
-        form.add(new JLabel("Nama *"));
-        form.add(txtNama);
+        JScrollPane spAlamat = new JScrollPane(txtAlamat);
+        spAlamat.setOpaque(false);
+        spAlamat.getViewport().setOpaque(false);
+        spAlamat.setBorder(null);
+        spAlamat.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        txtAlamat.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        txtAlamat.setBorder(null);
+        txtAlamat.setOpaque(false);
+        SoftFormUI.IconField alamatField = new SoftFormUI.IconField(SoftFormUI.IconType.PIN, spAlamat);
+        alamatField.setPreferredSize(new Dimension(0, 120));
+        addRow(form, 3, label("Alamat"), alamatField);
 
-        form.add(new JLabel("Kontak"));
-        form.add(txtKontak);
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        actions.setOpaque(false);
 
-        form.add(new JLabel("Alamat"));
-        form.add(new JScrollPane(txtAlamat));
+        PillButton btnSave = new PillButton("\u2713  Simpan Donatur");
+        PillButton btnCancel = new PillButton("Batal")
+                .setColors(new Color(125, 132, 145), new Color(145, 152, 165), new Color(105, 112, 125), new Color(100, 106, 118));
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        JButton btnSave = new JButton("Simpan Donatur");
-        JButton btnCancel = new JButton("Batal");
         actions.add(btnSave);
         actions.add(btnCancel);
 
-        btnSave.addActionListener(e -> onSave()); // method donor kamu
+        btnSave.addActionListener(e -> onSave());
         btnCancel.addActionListener(e -> {
             clear();
             app.showScreen(MainFrame.SCREEN_LIST);
         });
 
-        wrap.add(form, BorderLayout.CENTER);
-        wrap.add(actions, BorderLayout.SOUTH);
-        return wrap;
+        card.add(form, BorderLayout.CENTER);
+        card.add(actions, BorderLayout.SOUTH);
+
+        outer.add(card, BorderLayout.CENTER);
+        return outer;
     }
 
     private JPanel buildDonationForm() {
-        JPanel wrap = new JPanel(new BorderLayout(10,10));
-        JPanel form = new JPanel(new GridLayout(0, 2, 10, 10));
+        JPanel outer = new JPanel(new BorderLayout(0, 10));
+        outer.setOpaque(false);
+
+        JPanel pillRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pillRow.setOpaque(false);
+        pillRow.add(new SoftFormUI.PillLabel("Donasi Masuk"));
+        outer.add(pillRow, BorderLayout.NORTH);
+
+        SoftFormUI.CardPanel card = new SoftFormUI.CardPanel(26);
+        card.setLayout(new BorderLayout());
+        card.setBorder(new EmptyBorder(22, 22, 22, 22));
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
 
         txtDonasiId.setEditable(false);
         txtCatatan.setLineWrap(true);
         txtCatatan.setWrapStyleWord(true);
 
-        form.add(new JLabel("Donasi ID"));
-        form.add(txtDonasiId);
+        SoftFormUI.IconField fId = new SoftFormUI.IconField(SoftFormUI.IconType.ID, txtDonasiId);
+        SoftFormUI.IconField fTanggal = new SoftFormUI.IconField(SoftFormUI.IconType.CALENDAR, txtTanggal);
+        SoftFormUI.IconField fDonor = new SoftFormUI.IconField(SoftFormUI.IconType.USER, cmbDonor);
+        SoftFormUI.IconField fJenis = new SoftFormUI.IconField(SoftFormUI.IconType.LIST, cmbJenis);
+        SoftFormUI.IconField fKategori = new SoftFormUI.IconField(SoftFormUI.IconType.TAG, txtKategori);
+        SoftFormUI.IconField fNominal = new SoftFormUI.IconField(SoftFormUI.IconType.MONEY, txtNominal);
+        SoftFormUI.IconField fNamaBarang = new SoftFormUI.IconField(SoftFormUI.IconType.BOX, txtNamaBarang);
+        SoftFormUI.IconField fJumlahBarang = new SoftFormUI.IconField(SoftFormUI.IconType.NUMBER, spJumlahBarang);
 
-        form.add(new JLabel("Tanggal (yyyy-MM-dd) *"));
-        form.add(txtTanggal);
+        JScrollPane spCatatan = new JScrollPane(txtCatatan);
+        spCatatan.setOpaque(false);
+        spCatatan.getViewport().setOpaque(false);
+        spCatatan.setBorder(null);
+        spCatatan.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        txtCatatan.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        txtCatatan.setBorder(null);
+        txtCatatan.setOpaque(false);
+        SoftFormUI.IconField fCatatan = new SoftFormUI.IconField(SoftFormUI.IconType.NOTE, spCatatan);
+        fCatatan.setPreferredSize(new Dimension(0, 90));
 
-        form.add(new JLabel("Donor *"));
-        form.add(cmbDonor);
+        addRow(form, 0, label("Donasi ID"), fId);
+        addRow(form, 1, labelReq("Tanggal (yyyy-MM-dd)"), fTanggal);
+        addRow(form, 2, labelReq("Donor"), fDonor);
+        addRow(form, 3, labelReq("Jenis"), fJenis);
+        addRow(form, 4, label("Kategori"), fKategori);
+        addRow(form, 5, label("Nominal (UANG)"), fNominal);
+        addRow(form, 6, label("Nama Barang (BARANG)"), fNamaBarang);
+        addRow(form, 7, label("Jumlah Barang (BARANG)"), fJumlahBarang);
+        addRow(form, 8, label("Catatan"), fCatatan);
 
-        form.add(new JLabel("Jenis *"));
-        form.add(cmbJenis);
-
-        form.add(new JLabel("Kategori"));
-        form.add(txtKategori);
-
-        form.add(new JLabel("Nominal (UANG)"));
-        form.add(txtNominal);
-
-        form.add(new JLabel("Nama Barang (BARANG)"));
-        form.add(txtNamaBarang);
-
-        form.add(new JLabel("Jumlah Barang (BARANG)"));
-        form.add(spJumlahBarang);
-
-        form.add(new JLabel("Catatan"));
-        form.add(new JScrollPane(txtCatatan));
-
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        JButton btnSave = new JButton("Simpan Donasi");
-        JButton btnCancel = new JButton("Batal");
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        actions.setOpaque(false);
+        PillButton btnSave = new PillButton("\u2713  Simpan Donasi");
+        PillButton btnCancel = new PillButton("Batal")
+                .setColors(new Color(125, 132, 145), new Color(145, 152, 165), new Color(105, 112, 125), new Color(100, 106, 118));
         actions.add(btnSave);
         actions.add(btnCancel);
 
-        cmbJenis.addActionListener(e -> toggleDonationFields());
+        cmbJenis.addActionListener(e -> {
+            toggleDonationFields();
+            // repaint wrapper supaya state enabled kelihatan
+            fNominal.repaint();
+            fNamaBarang.repaint();
+            fJumlahBarang.repaint();
+        });
 
         btnSave.addActionListener(e -> onSaveDonation());
         btnCancel.addActionListener(e -> {
@@ -173,53 +235,128 @@ public class FormPanel extends JPanel {
             app.showScreen(MainFrame.SCREEN_LIST);
         });
 
-        wrap.add(form, BorderLayout.CENTER);
-        wrap.add(actions, BorderLayout.SOUTH);
-        return wrap;
+        card.add(form, BorderLayout.CENTER);
+        card.add(actions, BorderLayout.SOUTH);
+
+        // Form Donasi & Penyaluran cukup panjang. Pada ukuran window default (1100x650),
+        // GridBagLayout akan "memampatkan" row sehingga field paling atas bisa terlihat
+        // seperti kepotong. Solusinya: beri scroll yang tetap menjaga style.
+        JPanel scrollWrap = new JPanel(new BorderLayout());
+        scrollWrap.setOpaque(false);
+        scrollWrap.add(card, BorderLayout.NORTH); // NORTH => card mengikuti lebar, tinggi mengikuti konten
+
+        JScrollPane scroll = new JScrollPane(scrollWrap);
+        scroll.setBorder(null);
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        outer.add(scroll, BorderLayout.CENTER);
+
+        return outer;
+    }
+
+    // ===== helpers UI (label + row) =====
+    private JLabel label(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        l.setForeground(new Color(20, 28, 44));
+        return l;
+    }
+
+    private JLabel labelReq(String text) {
+        JLabel l = new JLabel("<html>" + text + " <span style='color:#e74c3c'>*</span></html>");
+        l.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        l.setForeground(new Color(20, 28, 44));
+        return l;
+    }
+
+    private void addRow(JPanel form, int row, JComponent label, JComponent field) {
+        GridBagConstraints gcL = new GridBagConstraints();
+        gcL.gridx = 0;
+        gcL.gridy = row;
+        gcL.weightx = 0.35;
+        gcL.anchor = GridBagConstraints.WEST;
+        gcL.insets = new Insets(10, 6, 10, 18);
+        form.add(label, gcL);
+
+        GridBagConstraints gcF = new GridBagConstraints();
+        gcF.gridx = 1;
+        gcF.gridy = row;
+        gcF.weightx = 0.65;
+        gcF.fill = GridBagConstraints.HORIZONTAL;
+        gcF.insets = new Insets(10, 0, 10, 6);
+        form.add(field, gcF);
     }
 
     private JPanel buildDistributionForm() {
-        JPanel wrap = new JPanel(new BorderLayout(10,10));
-        JPanel form = new JPanel(new GridLayout(0, 2, 10, 10));
+        JPanel outer = new JPanel(new BorderLayout(0, 10));
+        outer.setOpaque(false);
+
+        JPanel pillRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pillRow.setOpaque(false);
+        pillRow.add(new SoftFormUI.PillLabel("Penyaluran"));
+        outer.add(pillRow, BorderLayout.NORTH);
+
+        SoftFormUI.CardPanel card = new SoftFormUI.CardPanel(26);
+        card.setLayout(new BorderLayout());
+        card.setBorder(new EmptyBorder(22, 22, 22, 22));
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
 
         txtSalurId.setEditable(false);
         txtSalurCatatan.setLineWrap(true);
         txtSalurCatatan.setWrapStyleWord(true);
 
-        form.add(new JLabel("Salur ID"));
-        form.add(txtSalurId);
+        SoftFormUI.IconField fId = new SoftFormUI.IconField(SoftFormUI.IconType.ID, txtSalurId);
+        SoftFormUI.IconField fTanggal = new SoftFormUI.IconField(SoftFormUI.IconType.CALENDAR, txtSalurTanggal);
+        SoftFormUI.IconField fPenerima = new SoftFormUI.IconField(SoftFormUI.IconType.USER, txtPenerima);
+        SoftFormUI.IconField fJenis = new SoftFormUI.IconField(SoftFormUI.IconType.LIST, cmbSalurJenis);
+        SoftFormUI.IconField fKategori = new SoftFormUI.IconField(SoftFormUI.IconType.TAG, txtSalurKategori);
 
-        form.add(new JLabel("Tanggal (yyyy-MM-dd) *"));
-        form.add(txtSalurTanggal);
+        fSalurNominal = new SoftFormUI.IconField(SoftFormUI.IconType.MONEY, txtSalurNominal);
+        fSalurNamaBarang = new SoftFormUI.IconField(SoftFormUI.IconType.BOX, txtSalurNamaBarang);
+        fSalurJumlahBarang = new SoftFormUI.IconField(SoftFormUI.IconType.NUMBER, spSalurJumlahBarang);
 
-        form.add(new JLabel("Penerima *"));
-        form.add(txtPenerima);
+        JScrollPane spCatatan = new JScrollPane(txtSalurCatatan);
+        spCatatan.setOpaque(false);
+        spCatatan.getViewport().setOpaque(false);
+        spCatatan.setBorder(null);
+        spCatatan.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        txtSalurCatatan.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        txtSalurCatatan.setBorder(null);
+        txtSalurCatatan.setOpaque(false);
+        SoftFormUI.IconField fCatatan = new SoftFormUI.IconField(SoftFormUI.IconType.NOTE, spCatatan);
+        fCatatan.setPreferredSize(new Dimension(0, 90));
 
-        form.add(new JLabel("Jenis *"));
-        form.add(cmbSalurJenis);
+        addRow(form, 0, label("Salur ID"), fId);
+        addRow(form, 1, labelReq("Tanggal (yyyy-MM-dd)"), fTanggal);
+        addRow(form, 2, labelReq("Penerima"), fPenerima);
+        addRow(form, 3, labelReq("Jenis"), fJenis);
+        addRow(form, 4, label("Kategori"), fKategori);
+        addRow(form, 5, label("Nominal (UANG)"), fSalurNominal);
+        addRow(form, 6, label("Nama Barang (BARANG)"), fSalurNamaBarang);
+        addRow(form, 7, label("Jumlah Barang (BARANG)"), fSalurJumlahBarang);
+        addRow(form, 8, label("Catatan"), fCatatan);
 
-        form.add(new JLabel("Kategori"));
-        form.add(txtSalurKategori);
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        actions.setOpaque(false);
 
-        form.add(new JLabel("Nominal (UANG)"));
-        form.add(txtSalurNominal);
-
-        form.add(new JLabel("Nama Barang (BARANG)"));
-        form.add(txtSalurNamaBarang);
-
-        form.add(new JLabel("Jumlah Barang (BARANG)"));
-        form.add(spSalurJumlahBarang);
-
-        form.add(new JLabel("Catatan"));
-        form.add(new JScrollPane(txtSalurCatatan));
-
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        JButton btnSave = new JButton("Simpan Penyaluran");
-        JButton btnCancel = new JButton("Batal");
+        PillButton btnSave = new PillButton("\u2713  Simpan Penyaluran");
+        PillButton btnCancel = new PillButton("Batal")
+                .setColors(new Color(125, 132, 145), new Color(145, 152, 165), new Color(105, 112, 125), new Color(100, 106, 118));
         actions.add(btnSave);
         actions.add(btnCancel);
 
-        cmbSalurJenis.addActionListener(e -> toggleDistributionFields());
+        cmbSalurJenis.addActionListener(e -> {
+            toggleDistributionFields();
+            if (fSalurNominal != null) fSalurNominal.repaint();
+            if (fSalurNamaBarang != null) fSalurNamaBarang.repaint();
+            if (fSalurJumlahBarang != null) fSalurJumlahBarang.repaint();
+        });
 
         btnSave.addActionListener(e -> onSaveDistribution());
         btnCancel.addActionListener(e -> {
@@ -227,11 +364,27 @@ public class FormPanel extends JPanel {
             app.showScreen(MainFrame.SCREEN_LIST);
         });
 
-        wrap.add(form, BorderLayout.CENTER);
-        wrap.add(actions, BorderLayout.SOUTH);
+        card.add(form, BorderLayout.CENTER);
+        card.add(actions, BorderLayout.SOUTH);
+
+        // Form Penyaluran juga cukup panjang (mirip Donasi). Agar tidak "kepotong"
+        // saat window default (1100x650), bungkus dengan scrollpane yang tetap transparan.
+        JPanel scrollWrap = new JPanel(new BorderLayout());
+        scrollWrap.setOpaque(false);
+        scrollWrap.add(card, BorderLayout.NORTH);
+
+        JScrollPane scroll = new JScrollPane(scrollWrap);
+        scroll.setBorder(null);
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        outer.add(scroll, BorderLayout.CENTER);
 
         toggleDistributionFields();
-        return wrap;
+        return outer;
     }
 
     private void toggleDistributionFields() {
@@ -242,6 +395,11 @@ public class FormPanel extends JPanel {
 
         txtSalurNamaBarang.setEnabled(!uang);
         spSalurJumlahBarang.setEnabled(!uang);
+
+        // repaint wrapper supaya state enabled kelihatan
+        if (fSalurNominal != null) fSalurNominal.repaint();
+        if (fSalurNamaBarang != null) fSalurNamaBarang.repaint();
+        if (fSalurJumlahBarang != null) fSalurJumlahBarang.repaint();
     }
 
 
