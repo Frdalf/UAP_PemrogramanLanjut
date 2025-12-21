@@ -373,9 +373,7 @@ public class ReportPanel extends JPanel {
                 }
             }
 
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Export berhasil!\nFile: " + path,
-                    "Sukses", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            Toast.success(this, "Export history selesai");
 
         } catch (Exception ex) {
             javax.swing.JOptionPane.showMessageDialog(this,
@@ -455,8 +453,7 @@ public class ReportPanel extends JPanel {
                 }
             }
 
-            JOptionPane.showMessageDialog(this, "Export summary berhasil!\nFile: " + path,
-                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            Toast.success(this, "Export summary selesai");
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Export summary gagal:\n" + ex.getMessage(),

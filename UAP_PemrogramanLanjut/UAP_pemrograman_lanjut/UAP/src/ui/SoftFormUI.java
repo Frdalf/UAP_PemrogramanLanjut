@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
@@ -28,32 +30,25 @@ public final class SoftFormUI {
 
     public static final Color ICON_BLUE = new Color(45, 120, 215);
 
-        // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
+    // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
     private static void applySoftComboBoxStyle(JComboBox<?> cb) {
         cb.setBorder(null);
         cb.setOpaque(false);
         cb.setBackground(new Color(0, 0, 0, 0));
-        cb.setForeground(new Color(18, 28, 44));
         cb.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        cb.setFocusable(false);
 
         // Renderer: saat tampil di field (index == -1) dibuat transparan
         cb.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                         boolean isSelected, boolean cellHasFocus) {
+                                                          boolean isSelected, boolean cellHasFocus) {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-                // value di "display area" (bukan popup list)
                 if (index < 0) {
                     l.setOpaque(false);
-                    l.setBackground(new Color(0, 0, 0, 0));
-                    l.setForeground(new Color(18, 28, 44));
                 } else {
                     l.setOpaque(true);
                 }
-
-                l.setBorder(new EmptyBorder(6, 10, 6, 10));
+                l.setBorder(new EmptyBorder(4, 8, 4, 8));
                 return l;
             }
         });
@@ -64,6 +59,7 @@ public final class SoftFormUI {
                 JButton b = new JButton() {
                     @Override
                     protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
                         Graphics2D g2 = (Graphics2D) g.create();
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g2.setColor(new Color(25, 90, 170));
@@ -73,7 +69,6 @@ public final class SoftFormUI {
                         int h = getHeight();
                         int cx = w / 2;
                         int cy = h / 2 + 1;
-
                         // chevron down
                         g2.drawLine(cx - 5, cy - 2, cx, cy + 3);
                         g2.drawLine(cx, cy + 3, cx + 5, cy - 2);
@@ -86,7 +81,7 @@ public final class SoftFormUI {
                 b.setBorderPainted(false);
                 b.setFocusPainted(false);
                 b.setRolloverEnabled(false);
-                b.setPreferredSize(new Dimension(34, 22));
+                b.setPreferredSize(new Dimension(30, 22));
                 return b;
             }
 
@@ -98,6 +93,7 @@ public final class SoftFormUI {
             @Override
             protected ComboPopup createPopup() {
                 ComboPopup p = super.createPopup();
+                // styling list popup biar clean (optional)
                 if (p.getList() != null) {
                     p.getList().setSelectionBackground(new Color(40, 125, 235));
                     p.getList().setSelectionForeground(Color.WHITE);
@@ -107,7 +103,7 @@ public final class SoftFormUI {
         });
     }
 
-// ===== Background =====
+    // ===== Background =====
     public static class FormBackground extends JPanel {
         public FormBackground() {
             setOpaque(false);
@@ -321,6 +317,7 @@ public final class SoftFormUI {
     public static class IconField extends JPanel {
         private final JComponent inner;
         private boolean focused = false;
+        private boolean hovering = false;
         private final int radius;
 
         public IconField(IconType iconType, JComponent inner) {
@@ -343,6 +340,15 @@ public final class SoftFormUI {
 
             // focus tracking
             installFocusTracker(inner);
+
+            // hover tracking (micro-interaction)
+            MouseAdapter hover = new MouseAdapter() {
+                @Override public void mouseEntered(MouseEvent e) { hovering = true; repaint(); }
+                @Override public void mouseExited(MouseEvent e) { hovering = false; repaint(); }
+            };
+            addMouseListener(hover);
+            // also attach to inner so moving mouse over the actual input keeps the hover state
+            installHoverTracker(inner, hover);
         }
 
         private void prepareInner(JComponent c) {
@@ -397,6 +403,20 @@ public final class SoftFormUI {
             }
         }
 
+        private void installHoverTracker(JComponent c, MouseAdapter hover) {
+            c.addMouseListener(hover);
+            if (c instanceof JScrollPane sp) {
+                Component view = sp.getViewport().getView();
+                if (view instanceof JComponent jc) installHoverTracker(jc, hover);
+            } else if (c instanceof JSpinner sp) {
+                JComponent editor = sp.getEditor();
+                if (editor instanceof JComponent jc) installHoverTracker(jc, hover);
+            } else if (c instanceof JComboBox<?> cb) {
+                Component ed = cb.getEditor() != null ? cb.getEditor().getEditorComponent() : null;
+                if (ed instanceof JComponent jc) installHoverTracker(jc, hover);
+            }
+        }
+
         @Override
         public void setEnabled(boolean enabled) {
             super.setEnabled(enabled);
@@ -429,11 +449,27 @@ public final class SoftFormUI {
                 g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
             }
 
-            // border
-            if (!enabled) g2.setColor(FIELD_BORDER_DISABLED);
-            else if (focused) g2.setColor(new Color(60, 160, 235));
-            else g2.setColor(FIELD_BORDER);
-            g2.drawRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
+            // border + subtle glow (micro-interaction)
+            Color baseBorder;
+            if (!enabled) baseBorder = FIELD_BORDER_DISABLED;
+            else if (focused) baseBorder = new Color(60, 160, 235);
+            else if (hovering) baseBorder = new Color(95, 185, 235);
+            else baseBorder = FIELD_BORDER;
+
+            // glow when focused
+            if (enabled && focused) {
+                int inset = 2;
+                g2.setColor(new Color(60, 160, 235, 55));
+                g2.setStroke(new BasicStroke(6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawRoundRect(inset, inset, Math.max(1, w - inset * 2 - 1), Math.max(1, h - inset * 2 - 1), radius, radius);
+            }
+
+            // main border
+            g2.setColor(baseBorder);
+            g2.setStroke(new BasicStroke((enabled && (focused || hovering)) ? 2f : 1.2f,
+                    BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            int bInset = 1;
+            g2.drawRoundRect(bInset, bInset, Math.max(1, w - bInset * 2 - 1), Math.max(1, h - bInset * 2 - 1), radius, radius);
 
             g2.dispose();
             super.paintComponent(g);
