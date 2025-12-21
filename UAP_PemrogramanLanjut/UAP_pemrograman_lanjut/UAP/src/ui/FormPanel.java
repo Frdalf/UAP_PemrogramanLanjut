@@ -7,6 +7,7 @@ import Util.IdGenerator;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -76,6 +77,35 @@ public class FormPanel extends JPanel {
 
         tabs.setOpaque(false);
         tabs.setBorder(BorderFactory.createEmptyBorder());
+        tabs.setFocusable(false);
+
+        // Hide tab header strip + hilangkan content border/background bawaan JTabbedPane
+        // supaya area kosong di bawah form tetap menyatu dengan background (tidak jadi kotak abu-abu).
+        tabs.setUI(new BasicTabbedPaneUI() {
+            @Override
+            protected int calculateTabAreaHeight(int tabPlacement, int horizRunCount, int maxTabHeight) {
+                return 0;
+            }
+
+            @Override
+            protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
+                // no-op
+            }
+
+            @Override
+            protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
+                // no-op (hilangkan kotak/border konten)
+            }
+
+            @Override
+            protected Insets getContentBorderInsets(int tabPlacement) {
+                return new Insets(0, 0, 0, 0);
+            }
+        });
+
+        // pastikan benar-benar transparan setelah UI dipasang
+        tabs.setOpaque(false);
+        tabs.setBackground(new Color(0, 0, 0, 0));
 
         root.add(title, BorderLayout.NORTH);
         root.add(tabs, BorderLayout.CENTER);
@@ -159,7 +189,11 @@ public class FormPanel extends JPanel {
         card.add(form, BorderLayout.CENTER);
         card.add(actions, BorderLayout.SOUTH);
 
-        outer.add(card, BorderLayout.CENTER);
+        // Form Donatur relatif pendek. Kalau CardPanel dipasang di CENTER,
+        // BorderLayout akan memaksa card mengisi tinggi yang tersisa sehingga area atas
+        // terlihat kosong (seperti yang kamu lingkari merah). Pasang card di NORTH agar
+        // tinggi card mengikuti konten, dan sisa ruang jadi background (lebih "clean").
+        outer.add(card, BorderLayout.NORTH);
         return outer;
     }
 
@@ -539,6 +573,7 @@ public class FormPanel extends JPanel {
 
             app.persistDonations();
             app.refreshAll();
+            Toast.success(this, editModeDonation ? "Donasi diperbarui" : "Donasi tersimpan");
             clearDonation();
             app.showScreen(MainFrame.SCREEN_LIST);
 
@@ -604,6 +639,7 @@ public class FormPanel extends JPanel {
 
             app.persistDonors();
             app.refreshAll();
+            Toast.success(this, editMode ? "Donatur diperbarui" : "Donatur tersimpan");
             clear();
             app.showScreen(MainFrame.SCREEN_LIST);
 
@@ -758,6 +794,7 @@ public class FormPanel extends JPanel {
 
             app.persistDistributions();
             app.refreshAll();
+            Toast.success(this, editModeDistribution ? "Penyaluran diperbarui" : "Penyaluran tersimpan");
             clearDistribution();
             app.showScreen(MainFrame.SCREEN_LIST);
 

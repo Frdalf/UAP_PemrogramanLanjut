@@ -14,6 +14,13 @@ public class PillButton extends JButton {
     private boolean hovering = false;
     private boolean pressing = false;
 
+    // micro-interaction: slight "lift" via shadow + text offset
+    private int yShift() {
+        if (!isEnabled()) return 0;
+        if (pressing) return 1;
+        return 0;
+    }
+
     public PillButton(String text) {
         super(text);
         setFocusPainted(false);
@@ -47,25 +54,39 @@ public class PillButton extends JButton {
 
     @Override
     protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
         int w = getWidth();
         int h = getHeight();
         int arc = h; // pill
+
+        int ys = yShift();
 
         Color fill = bg;
         if (!isEnabled()) fill = new Color(160, 170, 185);
         else if (pressing) fill = bgPressed;
         else if (hovering) fill = bgHover;
 
+        // shadow first
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int shadowY = ys + (pressing ? 2 : (hovering ? 4 : 3));
+        int shadowAlpha = isEnabled() ? (hovering ? 28 : 18) : 10;
+        g2.setColor(new Color(0, 0, 0, shadowAlpha));
+        g2.fillRoundRect(0, shadowY, w - 1, h - 1, arc, arc);
+
+        // button body (slightly moves down when pressed)
         g2.setColor(fill);
-        g2.fillRoundRect(0, 0, w - 1, h - 1, arc, arc);
+        g2.fillRoundRect(0, ys, w - 1, h - 1, arc, arc);
 
         g2.setColor(borderColor);
-        g2.drawRoundRect(0, 0, w - 1, h - 1, arc, arc);
+        g2.drawRoundRect(0, ys, w - 1, h - 1, arc, arc);
 
         g2.dispose();
-        super.paintComponent(g);
+
+        // draw text/icon shifted together with the button body
+        Graphics2D gText = (Graphics2D) g.create();
+        gText.translate(0, ys);
+        super.paintComponent(gText);
+        gText.dispose();
     }
 }
