@@ -75,13 +75,16 @@ public final class SoftFormUI {
             int w = getWidth();
             int h = getHeight();
 
-            // shadow
+            // Shadow (drawn inside bounds, so it never looks "kepotong")
             g2.setColor(new Color(0, 0, 0, 18));
-            g2.fillRoundRect(6, 8, w - 12, h - 14, radius, radius);
+            int shX = 5, shY = 7;
+            g2.fillRoundRect(shX, shY, Math.max(1, w - shX - 1), Math.max(1, h - shY - 1), radius, radius);
 
-            // card
+            // Card
             g2.setColor(Color.WHITE);
-            g2.fillRoundRect(0, 0, w - 12, h - 14, radius, radius);
+            g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
+            g2.setColor(new Color(220, 230, 242));
+            g2.drawRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
 
             g2.dispose();
             super.paintComponent(g);
@@ -117,7 +120,8 @@ public final class SoftFormUI {
     public enum IconType {
         ID, USER, PHONE, PIN,
         CALENDAR, LIST, TAG, MONEY,
-        BOX, NUMBER, NOTE
+        BOX, NUMBER, NOTE,
+        SEARCH
     }
 
     /** Icon sederhana (vector) supaya tidak butuh file gambar. */
@@ -220,6 +224,12 @@ public final class SoftFormUI {
                     g2.drawLine(cx + 8, cy + 9, cx + s - 8, cy + 9);
                     g2.drawLine(cx + 8, cy + 13, cx + s - 10, cy + 13);
                     g2.drawLine(cx + 8, cy + 17, cx + s - 12, cy + 17);
+                }
+                case SEARCH -> {
+                    // magnifier
+                    g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                    g2.drawOval(cx + 4, cy + 4, s - 10, s - 10);
+                    g2.drawLine(cx + s - 8, cy + s - 8, cx + s - 3, cy + s - 3);
                 }
             }
 
@@ -327,25 +337,26 @@ public final class SoftFormUI {
 
             boolean enabled = inner.isEnabled();
 
-            // shadow
+            // shadow (offset but still inside bounds)
             g2.setColor(new Color(0, 0, 0, 12));
-            g2.fillRoundRect(3, 5, w - 6, h - 7, radius, radius);
+            int shX = 3, shY = 5;
+            g2.fillRoundRect(shX, shY, Math.max(1, w - shX - 1), Math.max(1, h - shY - 1), radius, radius);
 
             // fill
             if (!enabled) {
                 g2.setColor(FIELD_FILL_DISABLED);
-                g2.fillRoundRect(0, 0, w - 6, h - 7, radius, radius);
+                g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
             } else {
                 GradientPaint gp = new GradientPaint(0, 0, FIELD_FILL_TOP, 0, h, FIELD_FILL_BOTTOM);
                 g2.setPaint(gp);
-                g2.fillRoundRect(0, 0, w - 6, h - 7, radius, radius);
+                g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
             }
 
             // border
             if (!enabled) g2.setColor(FIELD_BORDER_DISABLED);
             else if (focused) g2.setColor(new Color(60, 160, 235));
             else g2.setColor(FIELD_BORDER);
-            g2.drawRoundRect(0, 0, w - 6, h - 7, radius, radius);
+            g2.drawRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
 
             g2.dispose();
             super.paintComponent(g);
