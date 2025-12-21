@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -26,6 +27,79 @@ public final class SoftFormUI {
     public static final Color FIELD_FILL_DISABLED = new Color(242, 245, 248);
 
     public static final Color ICON_BLUE = new Color(45, 120, 215);
+
+    // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
+    private static void applySoftComboBoxStyle(JComboBox<?> cb) {
+        cb.setBorder(null);
+        cb.setOpaque(false);
+        cb.setBackground(new Color(0, 0, 0, 0));
+        cb.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        // Renderer: saat tampil di field (index == -1) dibuat transparan
+        cb.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (index < 0) {
+                    l.setOpaque(false);
+                } else {
+                    l.setOpaque(true);
+                }
+                l.setBorder(new EmptyBorder(4, 8, 4, 8));
+                return l;
+            }
+        });
+
+        cb.setUI(new BasicComboBoxUI() {
+            @Override
+            protected JButton createArrowButton() {
+                JButton b = new JButton() {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        Graphics2D g2 = (Graphics2D) g.create();
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2.setColor(new Color(25, 90, 170));
+                        g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+
+                        int w = getWidth();
+                        int h = getHeight();
+                        int cx = w / 2;
+                        int cy = h / 2 + 1;
+                        // chevron down
+                        g2.drawLine(cx - 5, cy - 2, cx, cy + 3);
+                        g2.drawLine(cx, cy + 3, cx + 5, cy - 2);
+
+                        g2.dispose();
+                    }
+                };
+                b.setOpaque(false);
+                b.setContentAreaFilled(false);
+                b.setBorderPainted(false);
+                b.setFocusPainted(false);
+                b.setRolloverEnabled(false);
+                b.setPreferredSize(new Dimension(30, 22));
+                return b;
+            }
+
+            @Override
+            public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
+                // jangan gambar background bawaan, biar menyatu dengan IconField
+            }
+
+            @Override
+            protected ComboPopup createPopup() {
+                ComboPopup p = super.createPopup();
+                // styling list popup biar clean (optional)
+                if (p.getList() != null) {
+                    p.getList().setSelectionBackground(new Color(40, 125, 235));
+                    p.getList().setSelectionForeground(Color.WHITE);
+                }
+                return p;
+            }
+        });
+    }
 
     // ===== Background =====
     public static class FormBackground extends JPanel {
@@ -274,10 +348,7 @@ public final class SoftFormUI {
             }
 
             if (c instanceof JComboBox<?> cb) {
-                cb.setUI(new BasicComboBoxUI());
-                cb.setBorder(null);
-                cb.setOpaque(false);
-                cb.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                applySoftComboBoxStyle(cb);
             }
 
             if (c instanceof JSpinner sp) {
@@ -362,4 +433,5 @@ public final class SoftFormUI {
             super.paintComponent(g);
         }
     }
+
 }
