@@ -1,6 +1,7 @@
 package ui;
 
 import Model.Donation;
+import Util.MoneyUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -192,9 +193,9 @@ public class DonationTab extends JPanel {
                     safe(d.getDonorId()),
                     safe(d.getJenis()),
                     safe(d.getKategori()),
-                    d.getNominal(),
+                    MoneyUtil.format(d.getNominal()),
                     safe(d.getNamaBarang()),
-                    d.getJumlahBarang(),
+                    String.valueOf(d.getJumlahBarang()),
                     safe(d.getCatatan())
             });
         }

@@ -1,6 +1,7 @@
 package ui;
 
 import Model.Distribution;
+import Util.MoneyUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -162,8 +163,8 @@ public class DistributionTab extends JPanel {
     }
 
     /**
-     * Biar Nominal (col 5) & Qty (col 7) rata kanan
-     * TANPA bikin background putih (ikut zebra dari SimpleTableTheme).
+     * Samakan tampilan: kolom numeric tetap ikut zebra theme dan rata kiri
+     * (biar konsisten dengan kolom lain).
      */
     private void installRightAlignedColumns() {
         DefaultTableCellRenderer right = new DefaultTableCellRenderer() {
@@ -180,7 +181,7 @@ public class DistributionTab extends JPanel {
                 setBackground(themed.getBackground());
                 setForeground(themed.getForeground());
 
-                setHorizontalAlignment(SwingConstants.RIGHT);
+                setHorizontalAlignment(SwingConstants.LEFT);
                 setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
                 return this;
             }
@@ -227,9 +228,9 @@ public class DistributionTab extends JPanel {
                     safe(d.getPenerima()),
                     safe(d.getJenis()),
                     safe(d.getKategori()),
-                    d.getNominal(),
+                    MoneyUtil.format(d.getNominal()),
                     safe(d.getNamaBarang()),
-                    d.getJumlahBarang(),
+                    String.valueOf(d.getJumlahBarang()),
                     safe(d.getCatatan())
             });
         }

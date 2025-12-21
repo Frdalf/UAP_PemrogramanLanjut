@@ -4,6 +4,7 @@ import Model.Donor;
 import Model.Donation;
 import Model.Distribution;
 import Util.IdGenerator;
+import Util.MoneyUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -62,6 +63,10 @@ public class FormPanel extends JPanel {
         this.app = app;
         setLayout(new BorderLayout());
         setOpaque(false);
+
+        // Auto-format input nominal: tiap 3 digit pakai titik (.)
+        MoneyDocumentFilter.install(txtNominal);
+        MoneyDocumentFilter.install(txtSalurNominal);
 
         root.setLayout(new BorderLayout(18, 18));
         root.setBorder(new EmptyBorder(26, 26, 26, 26));
@@ -478,7 +483,7 @@ public class FormPanel extends JPanel {
         txtTanggal.setText(donation.getTanggal().toString());
         cmbJenis.setSelectedItem(donation.getJenis());
         txtKategori.setText(donation.getKategori());
-        txtNominal.setText(String.valueOf(donation.getNominal()));
+        txtNominal.setText(MoneyUtil.format(donation.getNominal()));
         txtNamaBarang.setText(donation.getNamaBarang());
         spJumlahBarang.setValue(Math.max(1, donation.getJumlahBarang()));
         txtCatatan.setText(donation.getCatatan());
@@ -521,7 +526,8 @@ public class FormPanel extends JPanel {
                     return;
                 }
                 try {
-                    nominal = Double.parseDouble(n);
+                    // txtNominal bisa berisi "1.000.000" -> ambil digit saja
+                    nominal = (double) MoneyUtil.parseToLong(n);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this, "Nominal harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
@@ -687,7 +693,7 @@ public class FormPanel extends JPanel {
         txtPenerima.setText(d.getPenerima());
         cmbSalurJenis.setSelectedItem(d.getJenis());
         txtSalurKategori.setText(d.getKategori());
-        txtSalurNominal.setText(String.valueOf(d.getNominal()));
+        txtSalurNominal.setText(MoneyUtil.format(d.getNominal()));
         txtSalurNamaBarang.setText(d.getNamaBarang());
         spSalurJumlahBarang.setValue(Math.max(1, d.getJumlahBarang()));
         txtSalurCatatan.setText(d.getCatatan());
@@ -727,8 +733,9 @@ public class FormPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Nominal wajib diisi untuk penyaluran UANG!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                try { nominal = Double.parseDouble(n); }
-                catch (Exception e) {
+                try {
+                    nominal = (double) MoneyUtil.parseToLong(n);
+                } catch (Exception e) {
                     JOptionPane.showMessageDialog(this, "Nominal harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
                 }

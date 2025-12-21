@@ -14,11 +14,17 @@ public class PillButton extends JButton {
     private boolean hovering = false;
     private boolean pressing = false;
 
-    // micro-interaction: slight "lift" via shadow + text offset
+    /**
+     * Micro-interaction:
+     * - Hover: tombol tampak "terangkat" dengan shadow yang lebih tipis/rapat.
+     * - Pressed: tombol tampak "masuk" dengan body sedikit turun.
+     *
+     * Catatan: Jangan gunakan nilai negatif karena area painting Swing ter-clip
+     * ke ukuran komponen, sehingga efek hover bisa terlihat "terpotong".
+     */
     private int yShift() {
         if (!isEnabled()) return 0;
-        if (pressing) return 1;
-        return 0;
+        return pressing ? 1 : 0;
     }
 
     public PillButton(String text) {
@@ -58,7 +64,7 @@ public class PillButton extends JButton {
         int h = getHeight();
         int arc = h; // pill
 
-        int ys = yShift();
+        int ys = yShift(); // hanya 0 atau 1
 
         Color fill = bg;
         if (!isEnabled()) fill = new Color(160, 170, 185);
@@ -69,10 +75,17 @@ public class PillButton extends JButton {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int shadowY = ys + (pressing ? 2 : (hovering ? 4 : 3));
-        int shadowAlpha = isEnabled() ? (hovering ? 28 : 18) : 10;
+        // shadow: selalu digambar DI DALAM bounds agar tidak ter-clip
+        int shadowOffset = pressing ? 6 : (hovering ? 4 : 5);
+        int shadowY = ys + shadowOffset;
+        int shadowH = Math.max(0, (h - 1) - shadowOffset);
+
+        int shadowAlpha = 10;
+        if (isEnabled()) shadowAlpha = pressing ? 32 : (hovering ? 16 : 20);
         g2.setColor(new Color(0, 0, 0, shadowAlpha));
-        g2.fillRoundRect(0, shadowY, w - 1, h - 1, arc, arc);
+        // pakai arc yang aman untuk tinggi shadow
+        int arcShadow = Math.max(6, Math.min(arc, shadowH));
+        g2.fillRoundRect(0, shadowY, w - 1, shadowH, arcShadow, arcShadow);
 
         // button body (slightly moves down when pressed)
         g2.setColor(fill);

@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
+import java.awt.event.*;
 
 /**
  * Halaman List (Donatur/Donasi Masuk/Penyaluran) dengan style "soft blue"
@@ -48,6 +49,32 @@ public class ListPanel extends JPanel {
         // Supaya tab tidak menampilkan focus rectangle (dotted) bawaan OS/LAF
         tabs.setFocusable(false);
         tabs.setUI(new SoftTabsUI());
+
+        // Hover "lift" untuk tab (Donatur / Donasi Masuk / Penyaluran)
+        tabs.putClientProperty("hoverTabIndex", -1);
+        tabs.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int idx = tabs.indexAtLocation(e.getX(), e.getY());
+                Object v = tabs.getClientProperty("hoverTabIndex");
+                int old = (v instanceof Integer) ? (Integer) v : -1;
+                if (old != idx) {
+                    tabs.putClientProperty("hoverTabIndex", idx);
+                    tabs.repaint();
+                }
+            }
+        });
+        tabs.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                Object v = tabs.getClientProperty("hoverTabIndex");
+                int old = (v instanceof Integer) ? (Integer) v : -1;
+                if (old != -1) {
+                    tabs.putClientProperty("hoverTabIndex", -1);
+                    tabs.repaint();
+                }
+            }
+        });
 
         donorTab = new DonorTab(app);
         donationTab = new DonationTab(app);
@@ -112,17 +139,28 @@ public class ListPanel extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             int arc = 22;
-            int px = x + 2;
-            int py = y + 2;
+	            int px = x + 2;
+	            int py = y + 2;
             int pw = w - 4;
             int ph = h - 4;
+
+	            int hoverIndex = -1;
+	            Object hv = tabPane.getClientProperty("hoverTabIndex");
+	            if (hv instanceof Integer) hoverIndex = (Integer) hv;
+	            boolean isHover = (!isSelected) && (tabIndex == hoverIndex);
+	            if (isHover) {
+	                // shadow tipis agar terasa "terangkat"
+	                g2.setColor(new Color(0, 0, 0, 22));
+	                g2.fillRoundRect(px, py + 3, pw, ph, arc, arc);
+	                py -= 1;
+	            }
 
             if (isSelected) {
                 g2.setColor(SoftFormUI.PILL_BLUE);
                 g2.fillRoundRect(px, py, pw, ph, arc, arc);
                 g2.setColor(new Color(25, 90, 170));
                 g2.drawRoundRect(px, py, pw, ph, arc, arc);
-            } else {
+	            } else {
                 g2.setColor(new Color(235, 241, 249));
                 g2.fillRoundRect(px, py, pw, ph, arc, arc);
                 g2.setColor(new Color(215, 225, 238));
