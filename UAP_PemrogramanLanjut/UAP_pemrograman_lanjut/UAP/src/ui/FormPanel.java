@@ -68,7 +68,8 @@ public class FormPanel extends JPanel {
         add(root, BorderLayout.CENTER);
 
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        title.setForeground(new Color(35, 120, 235));
+        // Title should be neutral (not blue) to match the polished dark-sidebar theme
+        title.setForeground(new Color(20, 20, 20));
 
         // build panel tab sekali saja
         donorTabPanel = buildDonorForm();

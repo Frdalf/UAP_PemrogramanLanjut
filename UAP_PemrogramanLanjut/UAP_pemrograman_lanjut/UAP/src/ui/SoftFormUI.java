@@ -19,7 +19,13 @@ public final class SoftFormUI {
     private SoftFormUI() {}
 
     // ===== Colors =====
-    public static final Color TITLE_BLUE = new Color(38, 120, 240);
+    /**
+     * Warna judul halaman.
+     *
+     * Dulu biru agar terlihat "brand". Sekarang dibuat lebih netral (hitam)
+     * supaya judul terlihat lebih clean.
+     */
+    public static final Color TITLE_BLUE = new Color(20, 20, 20);
     public static final Color PILL_BLUE = new Color(40, 125, 235);
 
     public static final Color FIELD_BORDER = new Color(120, 195, 235);
@@ -413,6 +419,8 @@ public final class SoftFormUI {
                     de.getTextField().setOpaque(false);
                     de.getTextField().setBorder(null);
                     de.getTextField().setFont(new Font("SansSerif", Font.PLAIN, 14));
+                    // Supaya angka tidak "nempel" di kanan (lebih rapi & konsisten dengan input lain)
+                    de.getTextField().setHorizontalAlignment(SwingConstants.LEFT);
                 }
             }
         }

@@ -29,7 +29,8 @@ public class ListPanel extends JPanel {
 
         JLabel title = new JLabel("List Donatur");
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        title.setForeground(new Color(35, 120, 235));
+        // Title should be neutral (not blue) to keep the header clean
+        title.setForeground(new Color(20, 20, 20));
         root.add(title, BorderLayout.NORTH);
 
         JPanel outer = new JPanel(new BorderLayout(0, 10));

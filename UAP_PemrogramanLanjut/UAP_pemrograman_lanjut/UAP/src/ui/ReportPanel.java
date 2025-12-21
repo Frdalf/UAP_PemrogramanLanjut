@@ -52,7 +52,8 @@ public class ReportPanel extends JPanel {
 
         JLabel title = new JLabel("Laporan / History");
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        title.setForeground(new Color(35, 120, 235));
+        // Title should be neutral (not blue) to match the overall UI tone
+        title.setForeground(new Color(20, 20, 20));
         root.add(title, BorderLayout.NORTH);
 
         JPanel outer = new JPanel(new BorderLayout(0, 10));
