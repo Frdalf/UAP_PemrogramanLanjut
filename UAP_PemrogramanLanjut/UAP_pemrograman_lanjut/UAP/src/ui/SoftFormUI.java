@@ -42,10 +42,14 @@ public final class SoftFormUI {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
-                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                // IMPORTANT: untuk tampilan di field (index < 0), jangan ikut "cellHasFocus"
+                // karena DefaultListCellRenderer akan menggambar outline fokus (kotak abu-abu).
+                JLabel l;
                 if (index < 0) {
+                    l = (JLabel) super.getListCellRendererComponent(list, value, index, false, false);
                     l.setOpaque(false);
                 } else {
+                    l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                     l.setOpaque(true);
                 }
                 l.setBorder(new EmptyBorder(4, 8, 4, 8));
@@ -90,7 +94,24 @@ public final class SoftFormUI {
                 // jangan gambar background bawaan, biar menyatu dengan IconField
             }
 
+            
+
             @Override
+            public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
+                // Paksa renderer tidak "focus" supaya tidak menggambar focus-rect/outline.
+                @SuppressWarnings("unchecked")
+                ListCellRenderer<Object> r = (ListCellRenderer<Object>) comboBox.getRenderer();
+                Component c = r.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
+                c.setFont(comboBox.getFont());
+                if (c instanceof JComponent jc) {
+                    jc.setOpaque(false);
+                    jc.setBorder(new EmptyBorder(4, 8, 4, 8));
+                }
+                // Jangan gambar background bawaan; IconField sudah menggambar fill-nya.
+                currentValuePane.paintComponent(g, c, comboBox,
+                        bounds.x, bounds.y, bounds.width, bounds.height, true);
+            }
+@Override
             protected ComboPopup createPopup() {
                 ComboPopup p = super.createPopup();
                 // styling list popup biar clean (optional)
@@ -101,6 +122,10 @@ public final class SoftFormUI {
                 return p;
             }
         });
+        // Pastikan tidak ada border bawaan dari JComboBox (menghilangkan kotak outline di dalam IconField)
+        cb.setBorder(new EmptyBorder(0, 0, 0, 0));
+        cb.setFocusable(false);
+
     }
 
     // ===== Background =====
