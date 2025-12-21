@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -42,10 +43,14 @@ public final class SoftFormUI {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
-                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                // IMPORTANT: untuk tampilan di field (index < 0), jangan ikut "cellHasFocus"
+                // karena DefaultListCellRenderer akan menggambar outline fokus (kotak abu-abu).
+                JLabel l;
                 if (index < 0) {
+                    l = (JLabel) super.getListCellRendererComponent(list, value, index, false, false);
                     l.setOpaque(false);
                 } else {
+                    l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                     l.setOpaque(true);
                 }
                 l.setBorder(new EmptyBorder(4, 8, 4, 8));
@@ -90,17 +95,54 @@ public final class SoftFormUI {
                 // jangan gambar background bawaan, biar menyatu dengan IconField
             }
 
+
+
+            @Override
+            public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
+                // Paksa renderer tidak "focus" supaya tidak menggambar focus-rect/outline.
+                @SuppressWarnings("unchecked")
+                ListCellRenderer<Object> r = (ListCellRenderer<Object>) comboBox.getRenderer();
+                Component c = r.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
+                c.setFont(comboBox.getFont());
+                if (c instanceof JComponent jc) {
+                    jc.setOpaque(false);
+                    jc.setBorder(new EmptyBorder(4, 8, 4, 8));
+                }
+                // Jangan gambar background bawaan; IconField sudah menggambar fill-nya.
+                currentValuePane.paintComponent(g, c, comboBox,
+                        bounds.x, bounds.y, bounds.width, bounds.height, true);
+            }
             @Override
             protected ComboPopup createPopup() {
-                ComboPopup p = super.createPopup();
-                // styling list popup biar clean (optional)
-                if (p.getList() != null) {
-                    p.getList().setSelectionBackground(new Color(40, 125, 235));
-                    p.getList().setSelectionForeground(Color.WHITE);
-                }
-                return p;
+                // Jangan pakai popup default LAF (kadang memunculkan artefak/"ghost" teks)
+                // Buat BasicComboPopup yang benar-benar opaque (background solid).
+                return new BasicComboPopup(comboBox) {
+                    @Override
+                    protected void configureList() {
+                        super.configureList();
+                        list.setOpaque(true);
+                        list.setBackground(new Color(245, 252, 255));
+                        list.setSelectionBackground(new Color(40, 125, 235));
+                        list.setSelectionForeground(Color.WHITE);
+                        list.setFixedCellHeight(32);
+                    }
+
+                    @Override
+                    protected JScrollPane createScroller() {
+                        JScrollPane sp = super.createScroller();
+                        sp.setOpaque(true);
+                        sp.getViewport().setOpaque(true);
+                        sp.getViewport().setBackground(new Color(245, 252, 255));
+                        sp.setBorder(BorderFactory.createLineBorder(FIELD_BORDER, 1));
+                        return sp;
+                    }
+                };
             }
         });
+        // Pastikan tidak ada border bawaan dari JComboBox (menghilangkan kotak outline di dalam IconField)
+        cb.setBorder(new EmptyBorder(0, 0, 0, 0));
+        cb.setFocusable(false);
+
     }
 
     // ===== Background =====
