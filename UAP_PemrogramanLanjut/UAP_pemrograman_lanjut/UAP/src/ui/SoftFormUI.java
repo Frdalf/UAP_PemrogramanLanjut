@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -94,7 +95,7 @@ public final class SoftFormUI {
                 // jangan gambar background bawaan, biar menyatu dengan IconField
             }
 
-            
+
 
             @Override
             public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
@@ -111,15 +112,31 @@ public final class SoftFormUI {
                 currentValuePane.paintComponent(g, c, comboBox,
                         bounds.x, bounds.y, bounds.width, bounds.height, true);
             }
-@Override
+            @Override
             protected ComboPopup createPopup() {
-                ComboPopup p = super.createPopup();
-                // styling list popup biar clean (optional)
-                if (p.getList() != null) {
-                    p.getList().setSelectionBackground(new Color(40, 125, 235));
-                    p.getList().setSelectionForeground(Color.WHITE);
-                }
-                return p;
+                // Jangan pakai popup default LAF (kadang memunculkan artefak/"ghost" teks)
+                // Buat BasicComboPopup yang benar-benar opaque (background solid).
+                return new BasicComboPopup(comboBox) {
+                    @Override
+                    protected void configureList() {
+                        super.configureList();
+                        list.setOpaque(true);
+                        list.setBackground(new Color(245, 252, 255));
+                        list.setSelectionBackground(new Color(40, 125, 235));
+                        list.setSelectionForeground(Color.WHITE);
+                        list.setFixedCellHeight(32);
+                    }
+
+                    @Override
+                    protected JScrollPane createScroller() {
+                        JScrollPane sp = super.createScroller();
+                        sp.setOpaque(true);
+                        sp.getViewport().setOpaque(true);
+                        sp.getViewport().setBackground(new Color(245, 252, 255));
+                        sp.setBorder(BorderFactory.createLineBorder(FIELD_BORDER, 1));
+                        return sp;
+                    }
+                };
             }
         });
         // Pastikan tidak ada border bawaan dari JComboBox (menghilangkan kotak outline di dalam IconField)
