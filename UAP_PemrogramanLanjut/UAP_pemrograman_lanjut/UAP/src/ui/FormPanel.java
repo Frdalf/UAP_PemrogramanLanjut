@@ -7,6 +7,7 @@ import Util.IdGenerator;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -76,6 +77,20 @@ public class FormPanel extends JPanel {
 
         tabs.setOpaque(false);
         tabs.setBorder(BorderFactory.createEmptyBorder());
+        tabs.setFocusable(false);
+
+        // Hide tab header strip (supaya tulisan tab kecil seperti "Donatur" tidak tampil)
+        tabs.setUI(new BasicTabbedPaneUI() {
+            @Override
+            protected int calculateTabAreaHeight(int tabPlacement, int horizRunCount, int maxTabHeight) {
+                return 0;
+            }
+
+            @Override
+            protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
+                // no-op
+            }
+        });
 
         root.add(title, BorderLayout.NORTH);
         root.add(tabs, BorderLayout.CENTER);

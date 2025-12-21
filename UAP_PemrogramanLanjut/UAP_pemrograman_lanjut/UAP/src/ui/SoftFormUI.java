@@ -28,25 +28,32 @@ public final class SoftFormUI {
 
     public static final Color ICON_BLUE = new Color(45, 120, 215);
 
-    // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
+        // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
     private static void applySoftComboBoxStyle(JComboBox<?> cb) {
         cb.setBorder(null);
         cb.setOpaque(false);
         cb.setBackground(new Color(0, 0, 0, 0));
+        cb.setForeground(new Color(18, 28, 44));
         cb.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        cb.setFocusable(false);
 
         // Renderer: saat tampil di field (index == -1) dibuat transparan
         cb.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
+                                                         boolean isSelected, boolean cellHasFocus) {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+                // value di "display area" (bukan popup list)
                 if (index < 0) {
                     l.setOpaque(false);
+                    l.setBackground(new Color(0, 0, 0, 0));
+                    l.setForeground(new Color(18, 28, 44));
                 } else {
                     l.setOpaque(true);
                 }
-                l.setBorder(new EmptyBorder(4, 8, 4, 8));
+
+                l.setBorder(new EmptyBorder(6, 10, 6, 10));
                 return l;
             }
         });
@@ -57,7 +64,6 @@ public final class SoftFormUI {
                 JButton b = new JButton() {
                     @Override
                     protected void paintComponent(Graphics g) {
-                        super.paintComponent(g);
                         Graphics2D g2 = (Graphics2D) g.create();
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g2.setColor(new Color(25, 90, 170));
@@ -67,6 +73,7 @@ public final class SoftFormUI {
                         int h = getHeight();
                         int cx = w / 2;
                         int cy = h / 2 + 1;
+
                         // chevron down
                         g2.drawLine(cx - 5, cy - 2, cx, cy + 3);
                         g2.drawLine(cx, cy + 3, cx + 5, cy - 2);
@@ -79,7 +86,7 @@ public final class SoftFormUI {
                 b.setBorderPainted(false);
                 b.setFocusPainted(false);
                 b.setRolloverEnabled(false);
-                b.setPreferredSize(new Dimension(30, 22));
+                b.setPreferredSize(new Dimension(34, 22));
                 return b;
             }
 
@@ -91,7 +98,6 @@ public final class SoftFormUI {
             @Override
             protected ComboPopup createPopup() {
                 ComboPopup p = super.createPopup();
-                // styling list popup biar clean (optional)
                 if (p.getList() != null) {
                     p.getList().setSelectionBackground(new Color(40, 125, 235));
                     p.getList().setSelectionForeground(Color.WHITE);
@@ -101,7 +107,7 @@ public final class SoftFormUI {
         });
     }
 
-    // ===== Background =====
+// ===== Background =====
     public static class FormBackground extends JPanel {
         public FormBackground() {
             setOpaque(false);
