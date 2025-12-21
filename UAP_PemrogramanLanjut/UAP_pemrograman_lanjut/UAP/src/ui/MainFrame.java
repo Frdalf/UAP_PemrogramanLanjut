@@ -60,18 +60,17 @@ public class MainFrame extends JFrame {
         distributions.addAll(distributionRepo.loadAll());
 
         // ===== Sidebar (Nav) =====
-        JPanel nav = new JPanel();
+        JPanel nav = new SidebarPanel();
         nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
-        nav.setBackground(new Color(245, 246, 248));
-        nav.setBorder(BorderFactory.createEmptyBorder(16, 12, 16, 12));
-        nav.setPreferredSize(new Dimension(190, 0));
+        nav.setBorder(BorderFactory.createEmptyBorder(22, 16, 22, 16));
+        nav.setPreferredSize(new Dimension(240, 0));
 
-        navDashboard = new NavButton("Dashboard");
-        navList = new NavButton("List Donatur");
-        navInputDonor = new NavButton("Input Donatur");
-        navReport = new NavButton("Laporan/History");
-        navInputDonasi = new NavButton("Input Donasi");
-        navInputPenyaluran = new NavButton("Input Penyaluran");
+        navDashboard = new NavButton("Dashboard", new NavButton.LineIcon(NavButton.LineIcon.Type.DASHBOARD));
+        navList = new NavButton("List Donatur", new NavButton.LineIcon(NavButton.LineIcon.Type.LIST));
+        navInputDonor = new NavButton("Input Donatur", new NavButton.LineIcon(NavButton.LineIcon.Type.USER));
+        navReport = new NavButton("Laporan/History", new NavButton.LineIcon(NavButton.LineIcon.Type.HISTORY));
+        navInputDonasi = new NavButton("Input Donasi", new NavButton.LineIcon(NavButton.LineIcon.Type.UP));
+        navInputPenyaluran = new NavButton("Input Penyaluran", new NavButton.LineIcon(NavButton.LineIcon.Type.DOWN));
 
         navButtons = java.util.List.of(
                 navDashboard, navList, navInputDonor, navReport, navInputDonasi, navInputPenyaluran
@@ -90,12 +89,12 @@ public class MainFrame extends JFrame {
         nav.add(navInputPenyaluran);
         nav.add(Box.createVerticalGlue());
 
-        navDashboard.setAlignmentX(Component.CENTER_ALIGNMENT);
-        navList.setAlignmentX(Component.CENTER_ALIGNMENT);
-        navInputDonor.setAlignmentX(Component.CENTER_ALIGNMENT);
-        navReport.setAlignmentX(Component.CENTER_ALIGNMENT);
-        navInputDonasi.setAlignmentX(Component.CENTER_ALIGNMENT);
-        navInputPenyaluran.setAlignmentX(Component.CENTER_ALIGNMENT);
+        navDashboard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        navList.setAlignmentX(Component.LEFT_ALIGNMENT);
+        navInputDonor.setAlignmentX(Component.LEFT_ALIGNMENT);
+        navReport.setAlignmentX(Component.LEFT_ALIGNMENT);
+        navInputDonasi.setAlignmentX(Component.LEFT_ALIGNMENT);
+        navInputPenyaluran.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 
         // ===== Panels =====

@@ -6,7 +6,6 @@
 ./Repo/DonationRepository.java
 ./Repo/DonorRepository.java
 ./ui/DashboardPanel.java
-./ui/FormPanel.java
 ./ui/MainFrame.java
 ./ui/NavButton.java
 ./ui/PillButton.java
@@ -19,5 +18,8 @@
 ./ui/DonorTab.java
 ./ui/DonationTab.java
 ./ui/DistributionTab.java
+./ui/FormPanel.java
+./ui/Toast.java
+./ui/SidebarPanel.java
 ./Util/CsvUtil.java
 ./Util/IdGenerator.java
