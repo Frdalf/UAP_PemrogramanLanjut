@@ -138,11 +138,6 @@ public class FormPanel extends JPanel {
         JPanel outer = new JPanel(new BorderLayout(0, 10));
         outer.setOpaque(false);
 
-        JPanel pillRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        pillRow.setOpaque(false);
-        pillRow.add(new SoftFormUI.PillLabel("Donatur"));
-        outer.add(pillRow, BorderLayout.NORTH);
-
         SoftFormUI.CardPanel card = new SoftFormUI.CardPanel(26);
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(22, 22, 22, 22));
@@ -200,11 +195,6 @@ public class FormPanel extends JPanel {
     private JPanel buildDonationForm() {
         JPanel outer = new JPanel(new BorderLayout(0, 10));
         outer.setOpaque(false);
-
-        JPanel pillRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        pillRow.setOpaque(false);
-        pillRow.add(new SoftFormUI.PillLabel("Donasi Masuk"));
-        outer.add(pillRow, BorderLayout.NORTH);
 
         SoftFormUI.CardPanel card = new SoftFormUI.CardPanel(26);
         card.setLayout(new BorderLayout());
@@ -328,11 +318,6 @@ public class FormPanel extends JPanel {
     private JPanel buildDistributionForm() {
         JPanel outer = new JPanel(new BorderLayout(0, 10));
         outer.setOpaque(false);
-
-        JPanel pillRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        pillRow.setOpaque(false);
-        pillRow.add(new SoftFormUI.PillLabel("Penyaluran"));
-        outer.add(pillRow, BorderLayout.NORTH);
 
         SoftFormUI.CardPanel card = new SoftFormUI.CardPanel(26);
         card.setLayout(new BorderLayout());
