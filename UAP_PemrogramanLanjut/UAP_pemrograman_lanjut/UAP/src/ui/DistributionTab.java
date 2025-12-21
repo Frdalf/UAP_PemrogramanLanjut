@@ -7,10 +7,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Tab Penyaluran (List) dengan kontrol soft-blue: Search + Sort + tombol aksi.
+ */
 public class DistributionTab extends JPanel {
     private final MainFrame app;
 
@@ -33,64 +37,51 @@ public class DistributionTab extends JPanel {
         this.app = app;
 
         setLayout(new BorderLayout(12, 12));
-        setBorder(new EmptyBorder(14, 14, 14, 14));
+        setBorder(new EmptyBorder(6, 6, 6, 6));
         setOpaque(false);
 
-        // ===== TOP =====
-        JLabel title = new JLabel("List Penyaluran");
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
+        add(buildControls(), BorderLayout.NORTH);
 
-        JPanel filter = new JPanel(new GridBagLayout());
-        filter.setOpaque(false);
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(0, 0, 0, 10);
-        gc.gridy = 0;
-        gc.fill = GridBagConstraints.HORIZONTAL;
-
-        gc.gridx = 0;
-        gc.weightx = 0;
-        filter.add(new JLabel("Search:"), gc);
-
-        gc.gridx = 1;
-        gc.weightx = 1;
-        filter.add(txtSearch, gc);
-
-        gc.gridx = 2;
-        gc.weightx = 0;
-        filter.add(new JLabel("Sort:"), gc);
-
-        gc.gridx = 3;
-        gc.weightx = 0.35;
-        filter.add(cmbSort, gc);
-
-        JPanel top = new JPanel(new BorderLayout(10, 8));
-        top.setOpaque(false);
-        top.add(title, BorderLayout.NORTH);
-        top.add(filter, BorderLayout.CENTER);
-
-        // ===== TABLE (SAMAKAN persis dengan DonationTab) =====
         JScrollPane sp = new JScrollPane(table);
         sp.setBorder(BorderFactory.createEmptyBorder());
         sp.setOpaque(false);
         sp.getViewport().setOpaque(false);
+        sp.getVerticalScrollBar().setUnitIncrement(16);
 
         SimpleTableTheme.applyBlue(table, sp);
 
-        // wrapper rounded + padding (ini yang bikin posisi isi tabel “rapi”)
         RoundedPanel tableWrap = new RoundedPanel(18)
                 .setBackgroundColor(new Color(10, 20, 36));
         tableWrap.setLayout(new BorderLayout());
         tableWrap.setBorder(new EmptyBorder(12, 12, 12, 12));
         tableWrap.add(sp, BorderLayout.CENTER);
+        add(tableWrap, BorderLayout.CENTER);
 
-        // Nominal (col 5) & Qty (col 7) rata kanan, tapi tetap ikut zebra theme
+        // Nominal & Qty rata kanan tapi tetap ikut zebra theme
         installRightAlignedColumns();
 
-        // ===== ACTIONS =====
+        txtSearch.getDocument().addDocumentListener((SimpleDocumentListener) e -> refreshTable());
+        cmbSort.addActionListener(e -> refreshTable());
+
+        refreshTable();
+    }
+
+    private JComponent buildControls() {
+        JPanel controls = new JPanel(new GridBagLayout());
+        controls.setOpaque(false);
+
+        JLabel lblSearch = labelSmall("Search");
+        JLabel lblSort = labelSmall("Sort");
+
+        SoftFormUI.IconField fSearch = new SoftFormUI.IconField(SoftFormUI.IconType.SEARCH, txtSearch);
+        fSearch.setPreferredSize(new Dimension(360, 46));
+
+        SoftFormUI.IconField fSort = new SoftFormUI.IconField(SoftFormUI.IconType.LIST, cmbSort);
+        fSort.setPreferredSize(new Dimension(260, 46));
+
         PillButton btnAdd = new PillButton("+ Tambah");
 
-        PillButton btnEdit = new PillButton("✎ Edit");
+        PillButton btnEdit = new PillButton("Edit");
         btnEdit.setColors(
                 new Color(90, 100, 120),
                 new Color(115, 125, 150),
@@ -98,7 +89,7 @@ public class DistributionTab extends JPanel {
                 new Color(55, 60, 75)
         );
 
-        PillButton btnDelete = new PillButton("🗑 Hapus");
+        PillButton btnDelete = new PillButton("Hapus");
         btnDelete.setColors(
                 new Color(200, 55, 65),
                 new Color(225, 70, 80),
@@ -106,26 +97,68 @@ public class DistributionTab extends JPanel {
                 new Color(140, 35, 45)
         );
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        actions.setOpaque(false);
-        actions.add(btnAdd);
-        actions.add(btnEdit);
-        actions.add(btnDelete);
-
-        // ===== LAYOUT =====
-        add(top, BorderLayout.NORTH);
-        add(tableWrap, BorderLayout.CENTER);   // <- PENTING: bukan sp langsung
-        add(actions, BorderLayout.SOUTH);
-
-        // ===== EVENTS =====
-        txtSearch.getDocument().addDocumentListener((SimpleDocumentListener) e -> refreshTable());
-        cmbSort.addActionListener(e -> refreshTable());
-
         btnAdd.addActionListener(e -> app.openNewDistributionForm());
         btnEdit.addActionListener(e -> onEdit());
         btnDelete.addActionListener(e -> onDelete());
 
-        refreshTable();
+        JPanel row1 = new JPanel(new GridBagLayout());
+        row1.setOpaque(false);
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridy = 0;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(0, 0, 0, 10);
+
+        g.gridx = 0;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        row1.add(lblSearch, g);
+
+        g.gridx = 1;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.insets = new Insets(0, 0, 0, 18);
+        row1.add(fSearch, g);
+
+        g.gridx = 2;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.insets = new Insets(0, 0, 0, 10);
+        row1.add(lblSort, g);
+
+        g.gridx = 3;
+        g.weightx = 0;
+        g.insets = new Insets(0, 0, 0, 0);
+        row1.add(fSort, g);
+
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        row2.setOpaque(false);
+        row2.add(btnAdd);
+        row2.add(btnEdit);
+        row2.add(btnDelete);
+
+        GridBagConstraints c1 = new GridBagConstraints();
+        c1.gridx = 0;
+        c1.gridy = 0;
+        c1.weightx = 1;
+        c1.fill = GridBagConstraints.HORIZONTAL;
+        controls.add(row1, c1);
+
+        GridBagConstraints c2 = new GridBagConstraints();
+        c2.gridx = 0;
+        c2.gridy = 1;
+        c2.weightx = 1;
+        c2.fill = GridBagConstraints.HORIZONTAL;
+        c2.insets = new Insets(10, 0, 0, 0);
+        controls.add(row2, c2);
+
+        return controls;
+    }
+
+    private JLabel labelSmall(String t) {
+        JLabel l = new JLabel(t);
+        l.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        l.setForeground(new Color(18, 28, 44));
+        return l;
     }
 
     /**
@@ -138,11 +171,9 @@ public class DistributionTab extends JPanel {
             public Component getTableCellRendererComponent(
                     JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column
             ) {
-                // renderer theme (buat warna zebra + selection)
                 Component themed = table.getDefaultRenderer(Object.class)
                         .getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                // renderer ini (buat alignment kanan)
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 setOpaque(true);
@@ -203,7 +234,6 @@ public class DistributionTab extends JPanel {
             });
         }
 
-        // jaga-jaga kalau column model ke-reset di beberapa kasus
         installRightAlignedColumns();
     }
 
@@ -236,5 +266,5 @@ public class DistributionTab extends JPanel {
     }
 
     private static String safe(String s) { return (s == null) ? "" : s; }
-    private static String safeDate(java.time.LocalDate d) { return (d == null) ? "" : d.toString(); }
+    private static String safeDate(LocalDate d) { return (d == null) ? "" : d.toString(); }
 }
