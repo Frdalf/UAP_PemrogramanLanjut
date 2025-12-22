@@ -50,7 +50,7 @@ public class FormPanel extends JPanel {
     private final JTextField txtSalurKategori = new JTextField();
     private final JTextField txtSalurNominal = new JTextField();
     private final JTextField txtSalurNamaBarang = new JTextField();
-    private final JSpinner spSalurJumlahBarang = new JSpinner(new SpinnerNumberModel(1, 1, 100000, 1));
+    private final JTextField txtSalurJumlahBarang = new JTextField();
     private final JTextArea txtSalurCatatan = new JTextArea(3, 20);
 
     // wrapper field (untuk repaint saat enable/disable)
@@ -67,6 +67,10 @@ public class FormPanel extends JPanel {
         // Auto-format input nominal: tiap 3 digit pakai titik (.)
         MoneyDocumentFilter.install(txtNominal);
         MoneyDocumentFilter.install(txtSalurNominal);
+        
+        // Jumlah barang hanya menerima angka
+        NumericDocumentFilter.install(txtJumlahBarang);
+        NumericDocumentFilter.install(txtSalurJumlahBarang);
 
         root.setLayout(new BorderLayout(18, 18));
         root.setBorder(new EmptyBorder(26, 26, 26, 26));
@@ -227,7 +231,7 @@ public class FormPanel extends JPanel {
         SoftFormUI.IconField fKategori = new SoftFormUI.IconField(SoftFormUI.IconType.TAG, txtKategori);
         SoftFormUI.IconField fNominal = new SoftFormUI.IconField(SoftFormUI.IconType.MONEY, txtNominal);
         SoftFormUI.IconField fNamaBarang = new SoftFormUI.IconField(SoftFormUI.IconType.BOX, txtNamaBarang);
-        SoftFormUI.IconField fJumlahBarang = new SoftFormUI.IconField(SoftFormUI.IconType.NUMBER, spJumlahBarang);
+        SoftFormUI.IconField fJumlahBarang = new SoftFormUI.IconField(SoftFormUI.IconType.NUMBER, txtJumlahBarang);
 
         JScrollPane spCatatan = new JScrollPane(txtCatatan);
         spCatatan.setOpaque(false);
@@ -359,7 +363,7 @@ public class FormPanel extends JPanel {
 
         fSalurNominal = new SoftFormUI.IconField(SoftFormUI.IconType.MONEY, txtSalurNominal);
         fSalurNamaBarang = new SoftFormUI.IconField(SoftFormUI.IconType.BOX, txtSalurNamaBarang);
-        fSalurJumlahBarang = new SoftFormUI.IconField(SoftFormUI.IconType.NUMBER, spSalurJumlahBarang);
+        fSalurJumlahBarang = new SoftFormUI.IconField(SoftFormUI.IconType.NUMBER, txtSalurJumlahBarang);
 
         JScrollPane spCatatan = new JScrollPane(txtSalurCatatan);
         spCatatan.setOpaque(false);
@@ -440,7 +444,7 @@ public class FormPanel extends JPanel {
         txtSalurNominal.setEnabled(uang);
 
         txtSalurNamaBarang.setEnabled(!uang);
-        spSalurJumlahBarang.setEnabled(!uang);
+        txtSalurJumlahBarang.setEnabled(!uang);
 
         // repaint wrapper supaya state enabled kelihatan
         if (fSalurNominal != null) fSalurNominal.repaint();
@@ -456,7 +460,7 @@ public class FormPanel extends JPanel {
         txtNominal.setEnabled(uang);
 
         txtNamaBarang.setEnabled(!uang);
-        spJumlahBarang.setEnabled(!uang);
+        txtJumlahBarang.setEnabled(!uang);
     }
 
     public void setModeCreateDonation() {
@@ -478,7 +482,7 @@ public class FormPanel extends JPanel {
         txtKategori.setText("");
         txtNominal.setText("");
         txtNamaBarang.setText("");
-        spJumlahBarang.setValue(1);
+        txtJumlahBarang.setText("1");
         txtCatatan.setText("");
 
         toggleDonationFields();
@@ -506,7 +510,7 @@ public class FormPanel extends JPanel {
         txtKategori.setText(donation.getKategori());
         txtNominal.setText(MoneyUtil.format(donation.getNominal()));
         txtNamaBarang.setText(donation.getNamaBarang());
-        spJumlahBarang.setValue(Math.max(1, donation.getJumlahBarang()));
+        txtJumlahBarang.setText(String.valueOf(Math.max(1, donation.getJumlahBarang())));
         txtCatatan.setText(donation.getCatatan());
 
         toggleDonationFields();
@@ -559,7 +563,17 @@ public class FormPanel extends JPanel {
                 }
             } else {
                 namaBarang = txtNamaBarang.getText().trim();
-                jumlahBarang = (int) spJumlahBarang.getValue();
+                String jumlahStr = txtJumlahBarang.getText().trim();
+                if (jumlahStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Jumlah barang wajib diisi!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                try {
+                    jumlahBarang = Integer.parseInt(jumlahStr);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Jumlah barang harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 if (namaBarang.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Nama barang wajib diisi untuk donasi BARANG!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
@@ -602,7 +616,7 @@ public class FormPanel extends JPanel {
         txtKategori.setText("");
         txtNominal.setText("");
         txtNamaBarang.setText("");
-        spJumlahBarang.setValue(1);
+        txtJumlahBarang.setText("1");
         txtCatatan.setText("");
     }
 
@@ -679,7 +693,7 @@ public class FormPanel extends JPanel {
     private final JTextField txtKategori = new JTextField();
     private final JTextField txtNominal = new JTextField();
     private final JTextField txtNamaBarang = new JTextField();
-    private final JSpinner spJumlahBarang = new JSpinner(new SpinnerNumberModel(1, 1, 100000, 1));
+    private final JTextField txtJumlahBarang = new JTextField();
     private final JTextArea txtCatatan = new JTextArea(3, 20);
 
     public void setModeCreateDistribution() {
@@ -696,7 +710,7 @@ public class FormPanel extends JPanel {
         txtSalurKategori.setText("");
         txtSalurNominal.setText("");
         txtSalurNamaBarang.setText("");
-        spSalurJumlahBarang.setValue(1);
+        txtSalurJumlahBarang.setText("1");
         txtSalurCatatan.setText("");
 
         toggleDistributionFields();
@@ -716,7 +730,7 @@ public class FormPanel extends JPanel {
         txtSalurKategori.setText(d.getKategori());
         txtSalurNominal.setText(MoneyUtil.format(d.getNominal()));
         txtSalurNamaBarang.setText(d.getNamaBarang());
-        spSalurJumlahBarang.setValue(Math.max(1, d.getJumlahBarang()));
+        txtSalurJumlahBarang.setText(String.valueOf(Math.max(1, d.getJumlahBarang())));
         txtSalurCatatan.setText(d.getCatatan());
 
         toggleDistributionFields();
@@ -780,7 +794,17 @@ public class FormPanel extends JPanel {
 
             } else {
                 namaBarang = txtSalurNamaBarang.getText().trim();
-                jumlahBarang = (int) spSalurJumlahBarang.getValue();
+                String jumlahStr = txtSalurJumlahBarang.getText().trim();
+                if (jumlahStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Jumlah barang wajib diisi!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                try {
+                    jumlahBarang = Integer.parseInt(jumlahStr);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Jumlah barang harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
                 if (namaBarang.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Nama barang wajib diisi untuk penyaluran BARANG!", "Validasi", JOptionPane.WARNING_MESSAGE);
@@ -825,7 +849,7 @@ public class FormPanel extends JPanel {
         txtSalurKategori.setText("");
         txtSalurNominal.setText("");
         txtSalurNamaBarang.setText("");
-        spSalurJumlahBarang.setValue(1);
+        txtSalurJumlahBarang.setText("1");
         txtSalurCatatan.setText("");
     }
 }
