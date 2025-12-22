@@ -45,6 +45,9 @@ public class MainFrame extends JFrame {
 
     private NavButton navDashboard, navList, navInputDonor, navReport, navInputDonasi, navInputPenyaluran;
     private java.util.List<NavButton> navButtons;
+    
+    private JPanel nav;
+    private DarkModeToggle darkModeToggle;
 
 
     public MainFrame() {
@@ -59,7 +62,7 @@ public class MainFrame extends JFrame {
         distributions.addAll(distributionRepo.loadAll());
 
         // ===== Sidebar (Nav) =====
-        JPanel nav = new SidebarPanel();
+        nav = new SidebarPanel();
         nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
         nav.setBorder(BorderFactory.createEmptyBorder(22, 16, 22, 16));
         nav.setPreferredSize(new Dimension(240, 0));
@@ -87,6 +90,15 @@ public class MainFrame extends JFrame {
         nav.add(Box.createVerticalStrut(12));
         nav.add(navInputPenyaluran);
         nav.add(Box.createVerticalGlue());
+        
+        // Dark mode toggle at bottom
+        darkModeToggle = new DarkModeToggle();
+        darkModeToggle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        darkModeToggle.addActionListener(e -> {
+            ThemeManager.toggleDarkMode();
+        });
+        nav.add(darkModeToggle);
+        nav.add(Box.createVerticalStrut(10));
 
         navDashboard.setAlignmentX(Component.LEFT_ALIGNMENT);
         navList.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -101,6 +113,9 @@ public class MainFrame extends JFrame {
         listPanel = new ListPanel(this);
         formPanel = new FormPanel(this);
         reportPanel = new ReportPanel(this);
+        
+        // Register theme change listener
+        ThemeManager.addThemeChangeListener(this::onThemeChanged);
 
         content.add(dashboardPanel, SCREEN_DASHBOARD);
         content.add(listPanel, SCREEN_LIST);
@@ -216,6 +231,35 @@ public class MainFrame extends JFrame {
         dashboardPanel.refresh();
         listPanel.refreshAllTables();
         reportPanel.refresh();
+    }
+    
+    /**
+     * Called when theme changes (dark/light mode toggle).
+     * Repaints all components to apply new theme colors.
+     */
+    private void onThemeChanged() {
+        // Repaint entire frame to apply new theme
+        SwingUtilities.invokeLater(() -> {
+            // Repaint navigation
+            nav.repaint();
+            darkModeToggle.repaint();
+            for (NavButton btn : navButtons) {
+                btn.repaint();
+            }
+            
+            // Refresh all panels to update their colors
+            dashboardPanel.refresh();
+            listPanel.refreshAllTables();
+            reportPanel.refresh();
+            formPanel.repaint();
+            
+            // Repaint content panel
+            content.repaint();
+            
+            // Force full repaint
+            repaint();
+            revalidate();
+        });
     }
 
     public double totalUangMasuk() {

@@ -52,8 +52,9 @@ public class ReportPanel extends JPanel {
 
         JLabel title = new JLabel("Laporan / History");
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        // Title should be neutral (not blue) to match the overall UI tone
-        title.setForeground(new Color(20, 20, 20));
+        // Title uses theme color
+        title.setForeground(ThemeManager.getTitleColor());
+        ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
         root.add(title, BorderLayout.NORTH);
 
         JPanel outer = new JPanel(new BorderLayout(0, 10));
@@ -81,7 +82,8 @@ public class ReportPanel extends JPanel {
         txtInsights.setOpaque(false);
         txtInsights.setBorder(null);
         txtInsights.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        txtInsights.setForeground(new Color(20, 28, 44));
+        txtInsights.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> txtInsights.setForeground(ThemeManager.getTextPrimary()));
     }
 
     private JPanel buildControls() {
@@ -168,7 +170,7 @@ public class ReportPanel extends JPanel {
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sp.getVerticalScrollBar().setUnitIncrement(16);
 
-        RoundedPanel wrap = new RoundedPanel(22).setBackgroundColor(new Color(11, 18, 30));
+        RoundedPanel wrap = new RoundedPanel(22).useTableBackground();
         wrap.setLayout(new BorderLayout());
         wrap.add(sp, BorderLayout.CENTER);
         return wrap;
@@ -190,7 +192,8 @@ public class ReportPanel extends JPanel {
 
         JLabel h = new JLabel("Ringkasan Keuangan");
         h.setFont(new Font("SansSerif", Font.BOLD, 14));
-        h.setForeground(new Color(20, 28, 44));
+        h.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> h.setForeground(ThemeManager.getTextPrimary()));
         summary.add(h, BorderLayout.NORTH);
 
         JPanel rows = new JPanel(new GridBagLayout());
@@ -206,10 +209,12 @@ public class ReportPanel extends JPanel {
     private void addMetricRow(JPanel p, int row, String label, JLabel value) {
         JLabel l = new JLabel(label);
         l.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        l.setForeground(new Color(55, 65, 85));
+        l.setForeground(ThemeManager.getTextSecondary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextSecondary()));
 
         value.setFont(new Font("SansSerif", Font.BOLD, 18));
-        value.setForeground(new Color(20, 28, 44));
+        value.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> value.setForeground(ThemeManager.getTextPrimary()));
 
         GridBagConstraints gcL = new GridBagConstraints();
         gcL.gridx = 0;
@@ -235,7 +240,8 @@ public class ReportPanel extends JPanel {
 
         JLabel h = new JLabel("Insight Cepat");
         h.setFont(new Font("SansSerif", Font.BOLD, 14));
-        h.setForeground(new Color(20, 28, 44));
+        h.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> h.setForeground(ThemeManager.getTextPrimary()));
         insights.add(h, BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtInsights);
@@ -252,7 +258,8 @@ public class ReportPanel extends JPanel {
     private JLabel labelSmall(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        l.setForeground(new Color(20, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 

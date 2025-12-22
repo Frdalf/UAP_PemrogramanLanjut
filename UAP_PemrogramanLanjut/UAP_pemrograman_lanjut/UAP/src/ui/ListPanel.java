@@ -27,8 +27,9 @@ public class ListPanel extends JPanel {
 
         JLabel title = new JLabel("List Donatur");
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        // Title should be neutral (not blue) to keep the header clean
-        title.setForeground(new Color(20, 20, 20));
+        // Title uses theme color
+        title.setForeground(ThemeManager.getTitleColor());
+        ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
         root.add(title, BorderLayout.NORTH);
 
         JPanel outer = new JPanel(new BorderLayout(0, 10));
@@ -147,20 +148,20 @@ public class ListPanel extends JPanel {
 	            boolean isHover = (!isSelected) && (tabIndex == hoverIndex);
 	            if (isHover) {
 	                // shadow tipis agar terasa "terangkat"
-	                g2.setColor(new Color(0, 0, 0, 22));
+	                g2.setColor(ThemeManager.getTabHoverShadow());
 	                g2.fillRoundRect(px, py + 3, pw, ph, arc, arc);
 	                py -= 1;
 	            }
 
             if (isSelected) {
-                g2.setColor(SoftFormUI.PILL_BLUE);
+                g2.setColor(ThemeManager.getTabActiveBackground());
                 g2.fillRoundRect(px, py, pw, ph, arc, arc);
-                g2.setColor(new Color(25, 90, 170));
+                g2.setColor(ThemeManager.getPillBlueBorder());
                 g2.drawRoundRect(px, py, pw, ph, arc, arc);
 	            } else {
-                g2.setColor(new Color(235, 241, 249));
+                g2.setColor(ThemeManager.getTabInactiveBackground());
                 g2.fillRoundRect(px, py, pw, ph, arc, arc);
-                g2.setColor(new Color(215, 225, 238));
+                g2.setColor(ThemeManager.getCardBorder());
                 g2.drawRoundRect(px, py, pw, ph, arc, arc);
             }
             g2.dispose();
@@ -183,7 +184,7 @@ public class ListPanel extends JPanel {
         protected void paintText(Graphics g, int tabPlacement, Font font, FontMetrics metrics,
                                  int tabIndex, String title, Rectangle textRect, boolean isSelected) {
             g.setFont(font);
-            g.setColor(isSelected ? Color.WHITE : new Color(25, 35, 52));
+            g.setColor(isSelected ? Color.WHITE : ThemeManager.getTextPrimary());
             g.drawString(title, textRect.x, textRect.y + metrics.getAscent());
         }
 

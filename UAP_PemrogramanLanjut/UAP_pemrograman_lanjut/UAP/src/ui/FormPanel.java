@@ -73,8 +73,9 @@ public class FormPanel extends JPanel {
         add(root, BorderLayout.CENTER);
 
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        // Title should be neutral (not blue) to match the polished dark-sidebar theme
-        title.setForeground(new Color(20, 20, 20));
+        // Title uses theme color
+        title.setForeground(ThemeManager.getTitleColor());
+        ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
 
         // build panel tab sekali saja
         donorTabPanel = buildDonorForm();
@@ -167,6 +168,12 @@ public class FormPanel extends JPanel {
         txtAlamat.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtAlamat.setBorder(null);
         txtAlamat.setOpaque(false);
+        txtAlamat.setForeground(ThemeManager.getTextPrimary());
+        txtAlamat.setCaretColor(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> {
+            txtAlamat.setForeground(ThemeManager.getTextPrimary());
+            txtAlamat.setCaretColor(ThemeManager.getTextPrimary());
+        });
         SoftFormUI.IconField alamatField = new SoftFormUI.IconField(SoftFormUI.IconType.PIN, spAlamat);
         alamatField.setPreferredSize(new Dimension(0, 120));
         addRow(form, 3, label("Alamat"), alamatField);
@@ -230,6 +237,12 @@ public class FormPanel extends JPanel {
         txtCatatan.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtCatatan.setBorder(null);
         txtCatatan.setOpaque(false);
+        txtCatatan.setForeground(ThemeManager.getTextPrimary());
+        txtCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> {
+            txtCatatan.setForeground(ThemeManager.getTextPrimary());
+            txtCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        });
         SoftFormUI.IconField fCatatan = new SoftFormUI.IconField(SoftFormUI.IconType.NOTE, spCatatan);
         fCatatan.setPreferredSize(new Dimension(0, 90));
 
@@ -292,14 +305,16 @@ public class FormPanel extends JPanel {
     private JLabel label(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        l.setForeground(new Color(20, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 
     private JLabel labelReq(String text) {
         JLabel l = new JLabel("<html>" + text + " <span style='color:#e74c3c'>*</span></html>");
         l.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        l.setForeground(new Color(20, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 
@@ -354,6 +369,12 @@ public class FormPanel extends JPanel {
         txtSalurCatatan.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtSalurCatatan.setBorder(null);
         txtSalurCatatan.setOpaque(false);
+        txtSalurCatatan.setForeground(ThemeManager.getTextPrimary());
+        txtSalurCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> {
+            txtSalurCatatan.setForeground(ThemeManager.getTextPrimary());
+            txtSalurCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        });
         SoftFormUI.IconField fCatatan = new SoftFormUI.IconField(SoftFormUI.IconType.NOTE, spCatatan);
         fCatatan.setPreferredSize(new Dimension(0, 90));
 
