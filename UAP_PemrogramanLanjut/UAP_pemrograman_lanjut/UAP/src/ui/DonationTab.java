@@ -1,6 +1,7 @@
 package ui;
 
 import Model.Donation;
+import Util.MoneyUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -50,7 +51,7 @@ public class DonationTab extends JPanel {
         SimpleTableTheme.applyBlue(table, sp);
 
         RoundedPanel tableWrap = new RoundedPanel(18)
-                .setBackgroundColor(new Color(10, 20, 36));
+                .useTableBackground();
         tableWrap.setLayout(new BorderLayout());
         tableWrap.setBorder(new EmptyBorder(12, 12, 12, 12));
         tableWrap.add(sp, BorderLayout.CENTER);
@@ -153,7 +154,8 @@ public class DonationTab extends JPanel {
     private JLabel labelSmall(String t) {
         JLabel l = new JLabel(t);
         l.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        l.setForeground(new Color(18, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 
@@ -192,9 +194,9 @@ public class DonationTab extends JPanel {
                     safe(d.getDonorId()),
                     safe(d.getJenis()),
                     safe(d.getKategori()),
-                    d.getNominal(),
+                    MoneyUtil.format(d.getNominal()),
                     safe(d.getNamaBarang()),
-                    d.getJumlahBarang(),
+                    String.valueOf(d.getJumlahBarang()),
                     safe(d.getCatatan())
             });
         }

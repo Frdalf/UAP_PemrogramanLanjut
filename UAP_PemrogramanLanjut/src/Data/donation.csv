@@ -1,4 +1,3 @@
 donasiId,tanggal,donorId,jenis,kategori,nominal,namaBarang,jumlahBarang,catatan
-DNS001,2025-12-20,DNR001,UANG,Sedekah,1000000.0,,0,
-DNS002,2025-12-20,DNR002,UANG,Sedekah,1000000.0,,0,
-DNS003,2025-12-21,DNR005,UANG,orang kaya,1.0E10,,0,CEO
+DNS001,2025-12-22,DNR001,UANG,,1000000.0,,0,
+DNS002,2025-12-22,DNR001,BARANG,,0.0,Buku,9,

@@ -5,6 +5,7 @@ import java.awt.*;
 
 /**
  * Dark gradient sidebar panel (matches modern look in mockup).
+ * Supports dark mode via ThemeManager.
  */
 public class SidebarPanel extends JPanel {
 
@@ -23,24 +24,24 @@ public class SidebarPanel extends JPanel {
 
         // Base vertical gradient
         GradientPaint gp = new GradientPaint(
-                0, 0, new Color(18, 33, 58),
-                0, h, new Color(7, 18, 38)
+                0, 0, ThemeManager.getSidebarGradientTop(),
+                0, h, ThemeManager.getSidebarGradientBottom()
         );
         g2.setPaint(gp);
         g2.fillRect(0, 0, w, h);
 
         // Soft radial glow (top-left)
-        g2.setComposite(AlphaComposite.SrcOver.derive(0.35f));
+        g2.setComposite(AlphaComposite.SrcOver.derive(ThemeManager.isDarkMode() ? 0.25f : 0.35f));
         g2.setPaint(new RadialGradientPaint(
                 new Point(w / 2, h / 5),
                 Math.max(w, h) * 0.75f,
                 new float[]{0f, 1f},
-                new Color[]{new Color(65, 120, 230), new Color(0, 0, 0, 0)}
+                new Color[]{ThemeManager.getSidebarGlow(), new Color(0, 0, 0, 0)}
         ));
         g2.fillRect(0, 0, w, h);
 
         // Vignette
-        g2.setComposite(AlphaComposite.SrcOver.derive(0.25f));
+        g2.setComposite(AlphaComposite.SrcOver.derive(ThemeManager.isDarkMode() ? 0.35f : 0.25f));
         g2.setPaint(new GradientPaint(0, 0, new Color(0,0,0,0), w, 0, new Color(0,0,0,120)));
         g2.fillRect(0, 0, w, h);
 

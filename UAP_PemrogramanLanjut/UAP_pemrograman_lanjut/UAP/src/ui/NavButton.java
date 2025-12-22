@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 /**
  * Sidebar navigation button with icon + text, dark theme.
  * Active state draws a translucent rounded highlight with soft shadow.
+ * Supports dark mode via ThemeManager.
  */
 public class NavButton extends JButton {
 
@@ -69,19 +70,19 @@ public class NavButton extends JButton {
 
         if (drawBg) {
             // shadow (subtle)
-            g2.setColor(new Color(0, 0, 0, active ? 55 : 35));
+            g2.setColor(active ? ThemeManager.getNavButtonShadowActive() : ThemeManager.getNavButtonShadowHover());
             g2.fillRoundRect(6, 8, w - 12, h - 12, arc, arc);
 
             // highlight background
             if (active) {
-                g2.setColor(new Color(255, 255, 255, 18));
+                g2.setColor(ThemeManager.getNavButtonActive());
             } else {
-                g2.setColor(new Color(255, 255, 255, 10));
+                g2.setColor(ThemeManager.getNavButtonHover());
             }
             g2.fillRoundRect(4, 4, w - 8, h - 10, arc, arc);
 
             // subtle border
-            g2.setColor(new Color(255, 255, 255, active ? 35 : 20));
+            g2.setColor(active ? ThemeManager.getNavButtonBorderActive() : ThemeManager.getNavButtonBorderHover());
             g2.drawRoundRect(4, 4, w - 9, h - 11, arc, arc);
         }
 

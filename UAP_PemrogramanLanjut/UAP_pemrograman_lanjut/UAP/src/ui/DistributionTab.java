@@ -1,6 +1,7 @@
 package ui;
 
 import Model.Distribution;
+import Util.MoneyUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -51,7 +52,7 @@ public class DistributionTab extends JPanel {
         SimpleTableTheme.applyBlue(table, sp);
 
         RoundedPanel tableWrap = new RoundedPanel(18)
-                .setBackgroundColor(new Color(10, 20, 36));
+                .useTableBackground();
         tableWrap.setLayout(new BorderLayout());
         tableWrap.setBorder(new EmptyBorder(12, 12, 12, 12));
         tableWrap.add(sp, BorderLayout.CENTER);
@@ -157,13 +158,14 @@ public class DistributionTab extends JPanel {
     private JLabel labelSmall(String t) {
         JLabel l = new JLabel(t);
         l.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        l.setForeground(new Color(18, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 
     /**
-     * Biar Nominal (col 5) & Qty (col 7) rata kanan
-     * TANPA bikin background putih (ikut zebra dari SimpleTableTheme).
+     * Samakan tampilan: kolom numeric tetap ikut zebra theme dan rata kiri
+     * (biar konsisten dengan kolom lain).
      */
     private void installRightAlignedColumns() {
         DefaultTableCellRenderer right = new DefaultTableCellRenderer() {
@@ -180,7 +182,7 @@ public class DistributionTab extends JPanel {
                 setBackground(themed.getBackground());
                 setForeground(themed.getForeground());
 
-                setHorizontalAlignment(SwingConstants.RIGHT);
+                setHorizontalAlignment(SwingConstants.LEFT);
                 setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
                 return this;
             }
@@ -227,9 +229,9 @@ public class DistributionTab extends JPanel {
                     safe(d.getPenerima()),
                     safe(d.getJenis()),
                     safe(d.getKategori()),
-                    d.getNominal(),
+                    MoneyUtil.format(d.getNominal()),
                     safe(d.getNamaBarang()),
-                    d.getJumlahBarang(),
+                    String.valueOf(d.getJumlahBarang()),
                     safe(d.getCatatan())
             });
         }

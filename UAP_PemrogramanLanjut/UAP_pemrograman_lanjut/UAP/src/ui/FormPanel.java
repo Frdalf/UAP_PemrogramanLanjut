@@ -4,6 +4,7 @@ import Model.Donor;
 import Model.Donation;
 import Model.Distribution;
 import Util.IdGenerator;
+import Util.MoneyUtil;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -63,12 +64,18 @@ public class FormPanel extends JPanel {
         setLayout(new BorderLayout());
         setOpaque(false);
 
+        // Auto-format input nominal: tiap 3 digit pakai titik (.)
+        MoneyDocumentFilter.install(txtNominal);
+        MoneyDocumentFilter.install(txtSalurNominal);
+
         root.setLayout(new BorderLayout(18, 18));
         root.setBorder(new EmptyBorder(26, 26, 26, 26));
         add(root, BorderLayout.CENTER);
 
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        title.setForeground(new Color(35, 120, 235));
+        // Title uses theme color
+        title.setForeground(ThemeManager.getTitleColor());
+        ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
 
         // build panel tab sekali saja
         donorTabPanel = buildDonorForm();
@@ -161,6 +168,12 @@ public class FormPanel extends JPanel {
         txtAlamat.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtAlamat.setBorder(null);
         txtAlamat.setOpaque(false);
+        txtAlamat.setForeground(ThemeManager.getTextPrimary());
+        txtAlamat.setCaretColor(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> {
+            txtAlamat.setForeground(ThemeManager.getTextPrimary());
+            txtAlamat.setCaretColor(ThemeManager.getTextPrimary());
+        });
         SoftFormUI.IconField alamatField = new SoftFormUI.IconField(SoftFormUI.IconType.PIN, spAlamat);
         alamatField.setPreferredSize(new Dimension(0, 120));
         addRow(form, 3, label("Alamat"), alamatField);
@@ -224,6 +237,12 @@ public class FormPanel extends JPanel {
         txtCatatan.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtCatatan.setBorder(null);
         txtCatatan.setOpaque(false);
+        txtCatatan.setForeground(ThemeManager.getTextPrimary());
+        txtCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> {
+            txtCatatan.setForeground(ThemeManager.getTextPrimary());
+            txtCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        });
         SoftFormUI.IconField fCatatan = new SoftFormUI.IconField(SoftFormUI.IconType.NOTE, spCatatan);
         fCatatan.setPreferredSize(new Dimension(0, 90));
 
@@ -286,14 +305,16 @@ public class FormPanel extends JPanel {
     private JLabel label(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        l.setForeground(new Color(20, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 
     private JLabel labelReq(String text) {
         JLabel l = new JLabel("<html>" + text + " <span style='color:#e74c3c'>*</span></html>");
         l.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        l.setForeground(new Color(20, 28, 44));
+        l.setForeground(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> l.setForeground(ThemeManager.getTextPrimary()));
         return l;
     }
 
@@ -348,6 +369,12 @@ public class FormPanel extends JPanel {
         txtSalurCatatan.setFont(new Font("SansSerif", Font.PLAIN, 14));
         txtSalurCatatan.setBorder(null);
         txtSalurCatatan.setOpaque(false);
+        txtSalurCatatan.setForeground(ThemeManager.getTextPrimary());
+        txtSalurCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        ThemeManager.addThemeChangeListener(() -> {
+            txtSalurCatatan.setForeground(ThemeManager.getTextPrimary());
+            txtSalurCatatan.setCaretColor(ThemeManager.getTextPrimary());
+        });
         SoftFormUI.IconField fCatatan = new SoftFormUI.IconField(SoftFormUI.IconType.NOTE, spCatatan);
         fCatatan.setPreferredSize(new Dimension(0, 90));
 
@@ -477,7 +504,7 @@ public class FormPanel extends JPanel {
         txtTanggal.setText(donation.getTanggal().toString());
         cmbJenis.setSelectedItem(donation.getJenis());
         txtKategori.setText(donation.getKategori());
-        txtNominal.setText(String.valueOf(donation.getNominal()));
+        txtNominal.setText(MoneyUtil.format(donation.getNominal()));
         txtNamaBarang.setText(donation.getNamaBarang());
         spJumlahBarang.setValue(Math.max(1, donation.getJumlahBarang()));
         txtCatatan.setText(donation.getCatatan());
@@ -520,7 +547,8 @@ public class FormPanel extends JPanel {
                     return;
                 }
                 try {
-                    nominal = Double.parseDouble(n);
+                    // txtNominal bisa berisi "1.000.000" -> ambil digit saja
+                    nominal = (double) MoneyUtil.parseToLong(n);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this, "Nominal harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
@@ -686,7 +714,7 @@ public class FormPanel extends JPanel {
         txtPenerima.setText(d.getPenerima());
         cmbSalurJenis.setSelectedItem(d.getJenis());
         txtSalurKategori.setText(d.getKategori());
-        txtSalurNominal.setText(String.valueOf(d.getNominal()));
+        txtSalurNominal.setText(MoneyUtil.format(d.getNominal()));
         txtSalurNamaBarang.setText(d.getNamaBarang());
         spSalurJumlahBarang.setValue(Math.max(1, d.getJumlahBarang()));
         txtSalurCatatan.setText(d.getCatatan());
@@ -726,8 +754,9 @@ public class FormPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Nominal wajib diisi untuk penyaluran UANG!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                try { nominal = Double.parseDouble(n); }
-                catch (Exception e) {
+                try {
+                    nominal = (double) MoneyUtil.parseToLong(n);
+                } catch (Exception e) {
                     JOptionPane.showMessageDialog(this, "Nominal harus angka!", "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
                 }

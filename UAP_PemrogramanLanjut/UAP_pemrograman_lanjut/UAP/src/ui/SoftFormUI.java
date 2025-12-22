@@ -14,22 +14,30 @@ import java.awt.event.FocusEvent;
 /**
  * Kumpulan komponen UI ringan untuk membuat tampilan form "soft blue"
  * (mirip mockup yang kamu kirim) tanpa butuh aset icon eksternal.
+ * Supports dark mode via ThemeManager.
  */
 public final class SoftFormUI {
     private SoftFormUI() {}
 
-    // ===== Colors =====
-    public static final Color TITLE_BLUE = new Color(38, 120, 240);
-    public static final Color PILL_BLUE = new Color(40, 125, 235);
+    // ===== Dynamic Colors (from ThemeManager) =====
+    public static Color getTitleBlue() { return ThemeManager.getTitleColor(); }
+    public static Color getPillBlue() { return ThemeManager.getPillBlue(); }
+    public static Color getFieldBorder() { return ThemeManager.getFieldBorder(); }
+    public static Color getFieldFillTop() { return ThemeManager.getFieldFillTop(); }
+    public static Color getFieldFillBottom() { return ThemeManager.getFieldFillBottom(); }
+    public static Color getFieldBorderDisabled() { return ThemeManager.getFieldBorderDisabled(); }
+    public static Color getFieldFillDisabled() { return ThemeManager.getFieldFillDisabled(); }
+    public static Color getIconBlue() { return ThemeManager.getIconColor(); }
 
-    public static final Color FIELD_BORDER = new Color(120, 195, 235);
-    public static final Color FIELD_FILL_TOP = new Color(232, 246, 255);
-    public static final Color FIELD_FILL_BOTTOM = new Color(220, 242, 255);
-
-    public static final Color FIELD_BORDER_DISABLED = new Color(185, 205, 220);
-    public static final Color FIELD_FILL_DISABLED = new Color(242, 245, 248);
-
-    public static final Color ICON_BLUE = new Color(45, 120, 215);
+    // Legacy constants for backwards compatibility (will use dynamic values)
+    @Deprecated public static final Color TITLE_BLUE = new Color(20, 20, 20);
+    @Deprecated public static final Color PILL_BLUE = new Color(40, 125, 235);
+    @Deprecated public static final Color FIELD_BORDER = new Color(120, 195, 235);
+    @Deprecated public static final Color FIELD_FILL_TOP = new Color(232, 246, 255);
+    @Deprecated public static final Color FIELD_FILL_BOTTOM = new Color(220, 242, 255);
+    @Deprecated public static final Color FIELD_BORDER_DISABLED = new Color(185, 205, 220);
+    @Deprecated public static final Color FIELD_FILL_DISABLED = new Color(242, 245, 248);
+    @Deprecated public static final Color ICON_BLUE = new Color(45, 120, 215);
 
     // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
     private static void applySoftComboBoxStyle(JComboBox<?> cb) {
@@ -37,6 +45,13 @@ public final class SoftFormUI {
         cb.setOpaque(false);
         cb.setBackground(new Color(0, 0, 0, 0));
         cb.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        cb.setForeground(ThemeManager.getTextPrimary());
+        
+        // Add theme listener to update foreground
+        ThemeManager.addThemeChangeListener(() -> {
+            cb.setForeground(ThemeManager.getTextPrimary());
+            cb.repaint();
+        });
 
         // Renderer: saat tampil di field (index == -1) dibuat transparan
         cb.setRenderer(new DefaultListCellRenderer() {
@@ -49,9 +64,14 @@ public final class SoftFormUI {
                 if (index < 0) {
                     l = (JLabel) super.getListCellRendererComponent(list, value, index, false, false);
                     l.setOpaque(false);
+                    l.setForeground(ThemeManager.getTextPrimary());
                 } else {
                     l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                     l.setOpaque(true);
+                    if (!isSelected) {
+                        l.setForeground(ThemeManager.getTextPrimary());
+                        l.setBackground(ThemeManager.getPopupBackground());
+                    }
                 }
                 l.setBorder(new EmptyBorder(4, 8, 4, 8));
                 return l;
@@ -67,7 +87,7 @@ public final class SoftFormUI {
                         super.paintComponent(g);
                         Graphics2D g2 = (Graphics2D) g.create();
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2.setColor(new Color(25, 90, 170));
+                        g2.setColor(ThemeManager.getIconColor());
                         g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
                         int w = getWidth();
@@ -100,7 +120,6 @@ public final class SoftFormUI {
             @Override
             public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
                 // Paksa renderer tidak "focus" supaya tidak menggambar focus-rect/outline.
-                @SuppressWarnings("unchecked")
                 ListCellRenderer<Object> r = (ListCellRenderer<Object>) comboBox.getRenderer();
                 Component c = r.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
                 c.setFont(comboBox.getFont());
@@ -121,9 +140,9 @@ public final class SoftFormUI {
                     protected void configureList() {
                         super.configureList();
                         list.setOpaque(true);
-                        list.setBackground(new Color(245, 252, 255));
-                        list.setSelectionBackground(new Color(40, 125, 235));
-                        list.setSelectionForeground(Color.WHITE);
+                        list.setBackground(ThemeManager.getPopupBackground());
+                        list.setSelectionBackground(ThemeManager.getPopupSelectionBackground());
+                        list.setSelectionForeground(ThemeManager.getPopupSelectionForeground());
                         list.setFixedCellHeight(32);
                     }
 
@@ -132,8 +151,8 @@ public final class SoftFormUI {
                         JScrollPane sp = super.createScroller();
                         sp.setOpaque(true);
                         sp.getViewport().setOpaque(true);
-                        sp.getViewport().setBackground(new Color(245, 252, 255));
-                        sp.setBorder(BorderFactory.createLineBorder(FIELD_BORDER, 1));
+                        sp.getViewport().setBackground(ThemeManager.getPopupBackground());
+                        sp.setBorder(BorderFactory.createLineBorder(getFieldBorder(), 1));
                         return sp;
                     }
                 };
@@ -160,16 +179,16 @@ public final class SoftFormUI {
             int w = getWidth();
             int h = getHeight();
 
-            GradientPaint gp = new GradientPaint(0, 0, new Color(247, 250, 255),
-                    w, h, new Color(232, 242, 252));
+            GradientPaint gp = new GradientPaint(0, 0, ThemeManager.getBackgroundPrimary(),
+                    w, h, ThemeManager.getBackgroundSecondary());
             g2.setPaint(gp);
             g2.fillRect(0, 0, w, h);
 
             // soft blobs
-            g2.setColor(new Color(255, 255, 255, 150));
+            g2.setColor(ThemeManager.getBlobLight());
             g2.fillOval((int) (w * 0.55), (int) (h * 0.02), (int) (w * 0.55), (int) (w * 0.55));
 
-            g2.setColor(new Color(210, 232, 248, 140));
+            g2.setColor(ThemeManager.getBlobAccent());
             g2.fillOval((int) (w * 0.38), (int) (h * 0.52), (int) (w * 0.60), (int) (w * 0.60));
 
             g2.dispose();
@@ -194,14 +213,14 @@ public final class SoftFormUI {
             int h = getHeight();
 
             // Shadow (drawn inside bounds, so it never looks "kepotong")
-            g2.setColor(new Color(0, 0, 0, 18));
+            g2.setColor(new Color(0, 0, 0, ThemeManager.isDarkMode() ? 30 : 18));
             int shX = 5, shY = 7;
             g2.fillRoundRect(shX, shY, Math.max(1, w - shX - 1), Math.max(1, h - shY - 1), radius, radius);
 
             // Card
-            g2.setColor(Color.WHITE);
+            g2.setColor(ThemeManager.getCardBackground());
             g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
-            g2.setColor(new Color(220, 230, 242));
+            g2.setColor(ThemeManager.getCardBorder());
             g2.drawRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
 
             g2.dispose();
@@ -225,9 +244,9 @@ public final class SoftFormUI {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             int w = getWidth();
             int h = getHeight();
-            g2.setColor(PILL_BLUE);
+            g2.setColor(ThemeManager.getPillBlue());
             g2.fillRoundRect(0, 0, w - 1, h - 1, h, h);
-            g2.setColor(new Color(25, 90, 170));
+            g2.setColor(ThemeManager.getPillBlueBorder());
             g2.drawRoundRect(0, 0, w - 1, h - 1, h, h);
             g2.dispose();
             super.paintComponent(g);
@@ -259,11 +278,13 @@ public final class SoftFormUI {
         public void paintIcon(Component c, Graphics g, int x, int y) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(ICON_BLUE);
+            g2.setColor(ThemeManager.getIconColor());
 
             int s = size;
             int cx = x;
             int cy = y;
+
+            Color iconBgLight = ThemeManager.getIconBgLight();
 
             switch (type) {
                 case ID -> {
@@ -287,15 +308,15 @@ public final class SoftFormUI {
                     p.addPoint(cx + s / 2 - 6, cy + s / 2 + 4);
                     p.addPoint(cx + s / 2 + 6, cy + s / 2 + 4);
                     g2.fillPolygon(p);
-                    g2.setColor(new Color(235, 247, 255));
+                    g2.setColor(iconBgLight);
                     g2.fillOval(cx + s / 2 - 2, cy + s / 2 - 2, 4, 4);
                 }
                 case CALENDAR -> {
                     g2.drawRoundRect(cx + 2, cy + 4, s - 4, s - 6, 6, 6);
                     g2.fillRoundRect(cx + 2, cy + 4, s - 4, 6, 6, 6);
-                    g2.setColor(new Color(235, 247, 255));
+                    g2.setColor(iconBgLight);
                     g2.fillRect(cx + 4, cy + 12, s - 8, s - 16);
-                    g2.setColor(ICON_BLUE);
+                    g2.setColor(ThemeManager.getIconColor());
                     g2.fillRect(cx + 6, cy + 14, 3, 3);
                     g2.fillRect(cx + 11, cy + 14, 3, 3);
                     g2.fillRect(cx + 16, cy + 14, 3, 3);
@@ -313,14 +334,14 @@ public final class SoftFormUI {
                     p.addPoint(cx + s - 4, cy + s / 2);
                     p.addPoint(cx + 4, cy + s - 4);
                     g2.fillPolygon(p);
-                    g2.setColor(new Color(235, 247, 255));
+                    g2.setColor(iconBgLight);
                     g2.fillOval(cx + 6, cy + s / 2 - 2, 4, 4);
                 }
                 case MONEY -> {
                     g2.fillOval(cx + 4, cy + 6, s - 8, s - 8);
-                    g2.setColor(new Color(235, 247, 255));
+                    g2.setColor(iconBgLight);
                     g2.fillOval(cx + 7, cy + 9, s - 14, s - 14);
-                    g2.setColor(ICON_BLUE);
+                    g2.setColor(ThemeManager.getIconColor());
                     g2.drawOval(cx + 7, cy + 9, s - 14, s - 14);
                     g2.fillRoundRect(cx + 9, cy + 12, s - 18, 2, 2, 2);
                 }
@@ -399,6 +420,12 @@ public final class SoftFormUI {
 
             if (c instanceof JTextField tf) {
                 tf.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                tf.setForeground(ThemeManager.getTextPrimary());
+                tf.setCaretColor(ThemeManager.getTextPrimary());
+                ThemeManager.addThemeChangeListener(() -> {
+                    tf.setForeground(ThemeManager.getTextPrimary());
+                    tf.setCaretColor(ThemeManager.getTextPrimary());
+                });
             }
 
             if (c instanceof JComboBox<?> cb) {
@@ -410,9 +437,18 @@ public final class SoftFormUI {
                 sp.setOpaque(false);
                 JComponent editor = sp.getEditor();
                 if (editor instanceof JSpinner.DefaultEditor de) {
-                    de.getTextField().setOpaque(false);
-                    de.getTextField().setBorder(null);
-                    de.getTextField().setFont(new Font("SansSerif", Font.PLAIN, 14));
+                    JTextField spinnerTf = de.getTextField();
+                    spinnerTf.setOpaque(false);
+                    spinnerTf.setBorder(null);
+                    spinnerTf.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                    spinnerTf.setForeground(ThemeManager.getTextPrimary());
+                    spinnerTf.setCaretColor(ThemeManager.getTextPrimary());
+                    // Supaya angka tidak "nempel" di kanan (lebih rapi & konsisten dengan input lain)
+                    spinnerTf.setHorizontalAlignment(SwingConstants.LEFT);
+                    ThemeManager.addThemeChangeListener(() -> {
+                        spinnerTf.setForeground(ThemeManager.getTextPrimary());
+                        spinnerTf.setCaretColor(ThemeManager.getTextPrimary());
+                    });
                 }
             }
         }
@@ -477,31 +513,31 @@ public final class SoftFormUI {
             boolean enabled = inner.isEnabled();
 
             // shadow (offset but still inside bounds)
-            g2.setColor(new Color(0, 0, 0, 12));
+            g2.setColor(new Color(0, 0, 0, ThemeManager.isDarkMode() ? 20 : 12));
             int shX = 3, shY = 5;
             g2.fillRoundRect(shX, shY, Math.max(1, w - shX - 1), Math.max(1, h - shY - 1), radius, radius);
 
             // fill
             if (!enabled) {
-                g2.setColor(FIELD_FILL_DISABLED);
+                g2.setColor(ThemeManager.getFieldFillDisabled());
                 g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
             } else {
-                GradientPaint gp = new GradientPaint(0, 0, FIELD_FILL_TOP, 0, h, FIELD_FILL_BOTTOM);
+                GradientPaint gp = new GradientPaint(0, 0, ThemeManager.getFieldFillTop(), 0, h, ThemeManager.getFieldFillBottom());
                 g2.setPaint(gp);
                 g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
             }
 
             // border + subtle glow (micro-interaction)
             Color baseBorder;
-            if (!enabled) baseBorder = FIELD_BORDER_DISABLED;
-            else if (focused) baseBorder = new Color(60, 160, 235);
-            else if (hovering) baseBorder = new Color(95, 185, 235);
-            else baseBorder = FIELD_BORDER;
+            if (!enabled) baseBorder = ThemeManager.getFieldBorderDisabled();
+            else if (focused) baseBorder = ThemeManager.getFieldFocusBorder();
+            else if (hovering) baseBorder = ThemeManager.getFieldHoverBorder();
+            else baseBorder = ThemeManager.getFieldBorder();
 
             // glow when focused
             if (enabled && focused) {
                 int inset = 2;
-                g2.setColor(new Color(60, 160, 235, 55));
+                g2.setColor(ThemeManager.getFieldFocusGlow());
                 g2.setStroke(new BasicStroke(6f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g2.drawRoundRect(inset, inset, Math.max(1, w - inset * 2 - 1), Math.max(1, h - inset * 2 - 1), radius, radius);
             }

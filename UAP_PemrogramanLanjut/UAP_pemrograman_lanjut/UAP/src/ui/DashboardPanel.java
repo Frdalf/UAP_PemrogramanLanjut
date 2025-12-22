@@ -3,12 +3,15 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Dashboard panel with statistics cards and chart.
+ * Supports dark mode via ThemeManager.
+ */
 public class DashboardPanel extends JPanel {
     private final MainFrame app;
 
@@ -36,7 +39,8 @@ public class DashboardPanel extends JPanel {
 
         // Title
         lblTitle.setFont(new Font("SansSerif", Font.BOLD, 56));
-        lblTitle.setForeground(new Color(20, 28, 44));
+        lblTitle.setForeground(ThemeManager.getTitleColor());
+        ThemeManager.addThemeChangeListener(() -> lblTitle.setForeground(ThemeManager.getTitleColor()));
 
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
@@ -47,22 +51,22 @@ public class DashboardPanel extends JPanel {
         cardsRow.setOpaque(false);
 
         // Icon pakai emoji biar langsung jalan tanpa file icon
-        cardDonor = new StatCard("Total Donatur:", "0", "👤", new Color(27, 74, 132));
-        cardMasuk = new StatCard("Uang Masuk:", "0 IDR", "💰", new Color(54, 150, 190));
-        cardSaldo = new StatCard("Saldo:", "0 IDR", "💳", new Color(64, 170, 120));
+        cardDonor = new StatCard("Total Donatur:", "0", "👤", ThemeManager.getStatCardDonor());
+        cardMasuk = new StatCard("Uang Masuk:", "0 IDR", "💰", ThemeManager.getStatCardMasuk());
+        cardSaldo = new StatCard("Saldo:", "0 IDR", "💳", ThemeManager.getStatCardSaldo());
 
         cardsRow.add(cardDonor);
         cardsRow.add(cardMasuk);
         cardsRow.add(cardSaldo);
 
         // Chart container
-        JPanel chartWrap = new RoundedPanel(22, Color.WHITE);
+        JPanel chartWrap = new RoundedPanel(22, ThemeManager.getCardBackground());
         chartWrap.setLayout(new BorderLayout(10, 10));
         chartWrap.setBorder(new EmptyBorder(16, 16, 16, 16));
         chartWrap.setOpaque(false);
 
         JLabel chartInfo = new JLabel("Total Donatur: 0 | Uang Masuk: 0 | Uang Keluar: 0 | Saldo: 0");
-        chartInfo.setForeground(new Color(90, 98, 110));
+        chartInfo.setForeground(ThemeManager.getTextMuted());
         chartInfo.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
         chartWrap.add(chartInfo, BorderLayout.NORTH);
@@ -96,6 +100,12 @@ public class DashboardPanel extends JPanel {
         cardDonor.setValue(String.valueOf(totalDonor));
         cardMasuk.setValue(formatIDR(uangMasuk));
         cardSaldo.setValue(formatIDR(saldo));
+
+        // Update colors based on theme
+        lblTitle.setForeground(ThemeManager.getTitleColor());
+        cardDonor.updateTheme(ThemeManager.getStatCardDonor());
+        cardMasuk.updateTheme(ThemeManager.getStatCardMasuk());
+        cardSaldo.updateTheme(ThemeManager.getStatCardSaldo());
 
         chart.setInfoText("Total Donatur: " + totalDonor +
                 " | Uang Masuk: " + formatPlain(uangMasuk) +
@@ -141,17 +151,17 @@ public class DashboardPanel extends JPanel {
             int w = getWidth();
             int h = getHeight();
 
-            // Gradient putih kebiruan
-            GradientPaint gp = new GradientPaint(0, 0, new Color(245, 248, 252),
-                    w, h, new Color(235, 242, 250));
+            // Gradient based on theme
+            GradientPaint gp = new GradientPaint(0, 0, ThemeManager.getBackgroundPrimary(),
+                    w, h, ThemeManager.getBackgroundSecondary());
             g2.setPaint(gp);
             g2.fillRect(0, 0, w, h);
 
-            // “Blob” lembut
-            g2.setColor(new Color(255, 255, 255, 120));
+            // "Blob" lembut
+            g2.setColor(ThemeManager.getBlobLight());
             g2.fillOval((int)(w * 0.55), (int)(h * 0.05), (int)(w * 0.6), (int)(w * 0.6));
 
-            g2.setColor(new Color(220, 235, 248, 140));
+            g2.setColor(ThemeManager.getBlobAccent());
             g2.fillOval((int)(w * 0.40), (int)(h * 0.50), (int)(w * 0.55), (int)(w * 0.55));
 
             g2.dispose();
@@ -161,12 +171,17 @@ public class DashboardPanel extends JPanel {
     // Panel rounded putih + shadow halus
     private static class RoundedPanel extends JPanel {
         private final int radius;
-        private final Color bg;
+        private Color bg;
 
         public RoundedPanel(int radius, Color bg) {
             this.radius = radius;
             this.bg = bg;
             setOpaque(false);
+        }
+
+        public void updateBg(Color newBg) {
+            this.bg = newBg;
+            repaint();
         }
 
         @Override
@@ -178,11 +193,11 @@ public class DashboardPanel extends JPanel {
             int h = getHeight();
 
             // shadow
-            g2.setColor(new Color(0, 0, 0, 18));
+            g2.setColor(new Color(0, 0, 0, ThemeManager.isDarkMode() ? 30 : 18));
             g2.fillRoundRect(4, 6, w - 8, h - 10, radius, radius);
 
-            // card
-            g2.setColor(bg);
+            // card - use theme background
+            g2.setColor(ThemeManager.getCardBackground());
             g2.fillRoundRect(0, 0, w - 8, h - 10, radius, radius);
 
             g2.dispose();
@@ -194,26 +209,26 @@ public class DashboardPanel extends JPanel {
     private static class StatCard extends RoundedPanel {
         private final JLabel lblTitle = new JLabel();
         private final JLabel lblValue = new JLabel();
-        private final JLabel lblIcon = new JLabel();
+        private final IconPill iconPill;
 
         public StatCard(String title, String value, String emojiIcon, Color iconBg) {
-            super(22, Color.WHITE);
+            super(22, ThemeManager.getCardBackground());
             setLayout(new BorderLayout(12, 12));
             setBorder(new EmptyBorder(14, 14, 14, 14));
 
             lblTitle.setText(title);
             lblTitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
-            lblTitle.setForeground(new Color(85, 92, 105));
+            lblTitle.setForeground(ThemeManager.getTextSecondary());
 
             lblValue.setText(value);
             lblValue.setFont(new Font("SansSerif", Font.BOLD, 28));
-            lblValue.setForeground(new Color(20, 28, 44));
+            lblValue.setForeground(ThemeManager.getTextPrimary());
 
             // Icon box
             JPanel iconBox = new JPanel(new BorderLayout());
             iconBox.setOpaque(false);
-            IconPill pill = new IconPill(emojiIcon, iconBg);
-            iconBox.add(pill, BorderLayout.CENTER);
+            iconPill = new IconPill(emojiIcon, iconBg);
+            iconBox.add(iconPill, BorderLayout.CENTER);
 
             JPanel text = new JPanel();
             text.setOpaque(false);
@@ -229,18 +244,30 @@ public class DashboardPanel extends JPanel {
         public void setValue(String value) {
             lblValue.setText(value);
         }
+
+        public void updateTheme(Color iconBg) {
+            lblTitle.setForeground(ThemeManager.getTextSecondary());
+            lblValue.setForeground(ThemeManager.getTextPrimary());
+            iconPill.updateBg(iconBg);
+            repaint();
+        }
     }
 
     // Kotak ikon rounded seperti desain
     private static class IconPill extends JPanel {
         private final String emoji;
-        private final Color bg;
+        private Color bg;
 
         public IconPill(String emoji, Color bg) {
             this.emoji = emoji;
             this.bg = bg;
             setPreferredSize(new Dimension(56, 56));
             setOpaque(false);
+        }
+
+        public void updateBg(Color newBg) {
+            this.bg = newBg;
+            repaint();
         }
 
         @Override
@@ -251,7 +278,7 @@ public class DashboardPanel extends JPanel {
             int w = getWidth();
             int h = getHeight();
 
-            g2.setColor(new Color(0, 0, 0, 18));
+            g2.setColor(new Color(0, 0, 0, ThemeManager.isDarkMode() ? 30 : 18));
             g2.fillRoundRect(3, 5, w - 6, h - 8, 16, 16);
 
             g2.setColor(bg);
@@ -290,7 +317,10 @@ public class DashboardPanel extends JPanel {
         }
 
         public void setInfoText(String text) {
-            if (infoLabel != null) infoLabel.setText(text);
+            if (infoLabel != null) {
+                infoLabel.setText(text);
+                infoLabel.setForeground(ThemeManager.getTextMuted());
+            }
         }
 
         @Override
@@ -307,7 +337,7 @@ public class DashboardPanel extends JPanel {
             int ch = h - padT - padB;
 
             // grid
-            g2.setColor(new Color(230, 234, 240));
+            g2.setColor(ThemeManager.getChartGrid());
             for (int i = 0; i <= 5; i++) {
                 int y = padT + (ch * i / 5);
                 g2.drawLine(padL, y, padL + cw, y);
@@ -318,7 +348,7 @@ public class DashboardPanel extends JPanel {
 
             // line
             g2.setStroke(new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2.setColor(new Color(27, 74, 132));
+            g2.setColor(ThemeManager.getChartLine());
 
             int n = series.size();
             int prevX = -1, prevY = -1;
@@ -331,9 +361,9 @@ public class DashboardPanel extends JPanel {
                 if (prevX != -1) g2.drawLine(prevX, prevY, x, y);
 
                 // titik
-                g2.setColor(Color.WHITE);
+                g2.setColor(ThemeManager.getChartPoint());
                 g2.fillOval(x - 6, y - 6, 12, 12);
-                g2.setColor(new Color(27, 74, 132));
+                g2.setColor(ThemeManager.getChartLine());
                 g2.fillOval(x - 4, y - 4, 8, 8);
 
                 prevX = x;
@@ -342,7 +372,7 @@ public class DashboardPanel extends JPanel {
 
             // axis label bawah (6 bulan)
             g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            g2.setColor(new Color(90, 98, 110));
+            g2.setColor(ThemeManager.getTextMuted());
             String[] months = {"M1", "M2", "M3", "M4", "M5", "M6"};
             for (int i = 0; i < months.length; i++) {
                 int x = padL + (int) (cw * (i / (double) (months.length - 1)));

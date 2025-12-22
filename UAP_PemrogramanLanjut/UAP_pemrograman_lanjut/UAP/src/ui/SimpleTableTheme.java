@@ -7,20 +7,45 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
+/**
+ * Table theme that supports dark/light mode via ThemeManager.
+ */
 public final class SimpleTableTheme {
 
     private SimpleTableTheme() {}
 
-    // ===== Theme Colors =====
-    private static final Color BASE_BG   = new Color(11, 18, 30);  // background table kosong + gap antar row
-    private static final Color ROW_ODD   = new Color(18, 29, 46);  // dark navy
-    private static final Color ROW_EVEN  = new Color(23, 38, 59);  // slightly lighter
-    private static final Color FG        = new Color(235, 241, 255);
-    private static final Color SEL_BG    = new Color(46, 117, 182);
-    private static final Color SEL_FG    = Color.WHITE;
-
-    private static final Color HEADER_BG = new Color(10, 20, 36);
-    private static final Color HEADER_FG = new Color(220, 233, 255);
+    // ===== Dynamic Theme Colors =====
+    private static Color getBaseBg() {
+        return ThemeManager.isDarkMode() ? new Color(18, 20, 28) : new Color(245, 248, 252);
+    }
+    
+    private static Color getRowOdd() {
+        return ThemeManager.isDarkMode() ? new Color(25, 28, 38) : new Color(255, 255, 255);
+    }
+    
+    private static Color getRowEven() {
+        return ThemeManager.isDarkMode() ? new Color(30, 34, 46) : new Color(248, 250, 255);
+    }
+    
+    private static Color getFg() {
+        return ThemeManager.isDarkMode() ? new Color(235, 241, 255) : new Color(30, 40, 60);
+    }
+    
+    private static Color getSelBg() {
+        return ThemeManager.isDarkMode() ? new Color(55, 100, 160) : new Color(40, 125, 235);
+    }
+    
+    private static Color getSelFg() {
+        return Color.WHITE;
+    }
+    
+    private static Color getHeaderBg() {
+        return ThemeManager.isDarkMode() ? new Color(20, 24, 35) : new Color(235, 240, 248);
+    }
+    
+    private static Color getHeaderFg() {
+        return ThemeManager.isDarkMode() ? new Color(220, 233, 255) : new Color(40, 50, 70);
+    }
 
     // ===== Public API =====
     public static void applyBlue(JTable table, JScrollPane sp) {
@@ -32,7 +57,15 @@ public final class SimpleTableTheme {
             sp.setOpaque(false);
 
             sp.getViewport().setOpaque(true);
-            sp.getViewport().setBackground(BASE_BG);
+            sp.getViewport().setBackground(getBaseBg());
+            
+            // Register theme listener to update colors when theme changes
+            ThemeManager.addThemeChangeListener(() -> {
+                table.setBackground(getBaseBg());
+                sp.getViewport().setBackground(getBaseBg());
+                table.repaint();
+                table.getTableHeader().repaint();
+            });
         }
     }
 
@@ -55,8 +88,8 @@ public final class SimpleTableTheme {
 
         // ✅ penting: gap antar row pakai background table
         table.setOpaque(true);
-        table.setBackground(BASE_BG);
-        table.setForeground(FG);
+        table.setBackground(getBaseBg());
+        table.setForeground(getFg());
 
         // Header
         JTableHeader header = table.getTableHeader();
@@ -83,8 +116,8 @@ public final class SimpleTableTheme {
                 JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column
         ) {
             super.getTableCellRendererComponent(table, value, false, false, row, column);
-            setBackground(HEADER_BG);
-            setForeground(HEADER_FG);
+            setBackground(getHeaderBg());
+            setForeground(getHeaderFg());
             setFont(getFont().deriveFont(Font.BOLD, 12.5f));
             setHorizontalAlignment(LEFT);
             return this;
@@ -104,11 +137,11 @@ public final class SimpleTableTheme {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if (isSelected) {
-                setBackground(SEL_BG);
-                setForeground(SEL_FG);
+                setBackground(getSelBg());
+                setForeground(getSelFg());
             } else {
-                setBackground((row % 2 == 0) ? ROW_EVEN : ROW_ODD);
-                setForeground(FG);
+                setBackground((row % 2 == 0) ? getRowEven() : getRowOdd());
+                setForeground(getFg());
             }
 
             setFont(getFont().deriveFont(Font.PLAIN, 12.5f));
