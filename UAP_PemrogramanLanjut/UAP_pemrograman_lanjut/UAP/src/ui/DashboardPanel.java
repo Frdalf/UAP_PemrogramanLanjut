@@ -3,7 +3,6 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
 import java.time.YearMonth;
 import java.util.*;
@@ -194,7 +193,6 @@ public class DashboardPanel extends JPanel {
     private static class StatCard extends RoundedPanel {
         private final JLabel lblTitle = new JLabel();
         private final JLabel lblValue = new JLabel();
-        private final JLabel lblIcon = new JLabel();
 
         public StatCard(String title, String value, String emojiIcon, Color iconBg) {
             super(22, Color.WHITE);

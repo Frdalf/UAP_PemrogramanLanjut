@@ -534,7 +534,7 @@ public class ReportPanel extends JPanel {
     }
 
     private static String idr(double v) {
-        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("id", "ID"));
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.of("id", "ID"));
         nf.setMaximumFractionDigits(0);
         nf.setMinimumFractionDigits(0);
         return "Rp " + nf.format(v);

@@ -15,7 +15,7 @@ public final class MoneyUtil {
     private static final DecimalFormat GROUP_FORMAT;
 
     static {
-        DecimalFormatSymbols sym = new DecimalFormatSymbols(new Locale("in", "ID"));
+        DecimalFormatSymbols sym = new DecimalFormatSymbols(Locale.of("in", "ID"));
         sym.setGroupingSeparator('.');
         sym.setDecimalSeparator(',');
 

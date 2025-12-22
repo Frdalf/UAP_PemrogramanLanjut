@@ -11,14 +11,11 @@ import java.awt.event.*;
  * yang konsisten dengan FormPanel dan ReportPanel.
  */
 public class ListPanel extends JPanel {
-    private final MainFrame app;
-
     private final DonorTab donorTab;
     private final DonationTab donationTab;
     private final DistributionTab distributionTab;
 
     public ListPanel(MainFrame app) {
-        this.app = app;
         setLayout(new BorderLayout());
         setOpaque(false);
 

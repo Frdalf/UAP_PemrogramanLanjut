@@ -106,7 +106,6 @@ public final class SoftFormUI {
             @Override
             public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
                 // Paksa renderer tidak "focus" supaya tidak menggambar focus-rect/outline.
-                @SuppressWarnings("unchecked")
                 ListCellRenderer<Object> r = (ListCellRenderer<Object>) comboBox.getRenderer();
                 Component c = r.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
                 c.setFont(comboBox.getFont());

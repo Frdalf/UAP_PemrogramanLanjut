@@ -3,6 +3,8 @@ package ui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
 
 public class PillButton extends JButton {
     private Color bg = new Color(28, 95, 200);
@@ -13,19 +15,16 @@ public class PillButton extends JButton {
 
     private boolean hovering = false;
     private boolean pressing = false;
-
-    /**
-     * Micro-interaction:
-     * - Hover: tombol tampak "terangkat" dengan shadow yang lebih tipis/rapat.
-     * - Pressed: tombol tampak "masuk" dengan body sedikit turun.
-     *
-     * Catatan: Jangan gunakan nilai negatif karena area painting Swing ter-clip
-     * ke ukuran komponen, sehingga efek hover bisa terlihat "terpotong".
-     */
-    private int yShift() {
-        if (!isEnabled()) return 0;
-        return pressing ? 1 : 0;
-    }
+    
+    // Animasi hover
+    private float hoverProgress = 0f;
+    private Timer animationTimer;
+    private float rippleProgress = 0f;
+    private Point rippleCenter = new Point(0, 0);
+    private boolean rippleActive = false;
+    
+    // Untuk shine sweep animation
+    private float shinePosition = -0.5f;
 
     public PillButton(String text) {
         super(text);
@@ -38,14 +37,75 @@ public class PillButton extends JButton {
         setFont(getFont().deriveFont(Font.BOLD, 12.5f));
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        setBorder(new EmptyBorder(9, 16, 9, 16));
+        setBorder(new EmptyBorder(10, 18, 10, 18));
+
+        // Animation timer untuk smooth transitions
+        animationTimer = new Timer(16, e -> {
+            boolean needRepaint = false;
+            
+            // Animate hover progress
+            if (hovering && hoverProgress < 1f) {
+                hoverProgress = Math.min(1f, hoverProgress + 0.15f);
+                needRepaint = true;
+            } else if (!hovering && hoverProgress > 0f) {
+                hoverProgress = Math.max(0f, hoverProgress - 0.1f);
+                needRepaint = true;
+            }
+            
+            // Animate shine sweep saat hover
+            if (hovering) {
+                shinePosition += 0.04f;
+                if (shinePosition > 1.5f) shinePosition = -0.5f;
+                needRepaint = true;
+            }
+            
+            // Animate ripple
+            if (rippleActive && rippleProgress < 1f) {
+                rippleProgress = Math.min(1f, rippleProgress + 0.1f);
+                needRepaint = true;
+            } else if (rippleProgress >= 1f) {
+                rippleActive = false;
+                rippleProgress = 0f;
+            }
+            
+            if (needRepaint) {
+                repaint();
+            } else if (!hovering && hoverProgress == 0f && !rippleActive) {
+                shinePosition = -0.5f;
+                ((Timer) e.getSource()).stop();
+            }
+        });
 
         // hover / pressed tracking
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseEntered(java.awt.event.MouseEvent e) { hovering = true; repaint(); }
-            @Override public void mouseExited(java.awt.event.MouseEvent e) { hovering = false; pressing = false; repaint(); }
-            @Override public void mousePressed(java.awt.event.MouseEvent e) { pressing = true; repaint(); }
-            @Override public void mouseReleased(java.awt.event.MouseEvent e) { pressing = false; repaint(); }
+        addMouseListener(new MouseAdapter() {
+            @Override 
+            public void mouseEntered(MouseEvent e) { 
+                hovering = true;
+                shinePosition = -0.5f;
+                if (!animationTimer.isRunning()) animationTimer.start();
+                repaint(); 
+            }
+            @Override 
+            public void mouseExited(MouseEvent e) { 
+                hovering = false; 
+                pressing = false; 
+                if (!animationTimer.isRunning()) animationTimer.start();
+                repaint(); 
+            }
+            @Override 
+            public void mousePressed(MouseEvent e) { 
+                pressing = true; 
+                rippleCenter = e.getPoint();
+                rippleActive = true;
+                rippleProgress = 0f;
+                if (!animationTimer.isRunning()) animationTimer.start();
+                repaint(); 
+            }
+            @Override 
+            public void mouseReleased(MouseEvent e) { 
+                pressing = false; 
+                repaint(); 
+            }
         });
     }
 
@@ -62,44 +122,155 @@ public class PillButton extends JButton {
     protected void paintComponent(Graphics g) {
         int w = getWidth();
         int h = getHeight();
-        int arc = h; // pill
+        int arc = h; // pill shape - full rounded
 
-        int ys = yShift(); // hanya 0 atau 1
+        // Margin untuk efek (shadow, dll) agar tidak terpotong
+        int margin = 4;
+        int bx = margin;
+        int by = margin;
+        int bw = w - margin * 2;
+        int bh = h - margin * 2;
+        int bArc = bh; // pill arc berdasarkan tinggi button
+
+        // Y shift untuk efek press/hover
+        int ys = pressing ? 2 : 0;
 
         Color fill = bg;
         if (!isEnabled()) fill = new Color(160, 170, 185);
         else if (pressing) fill = bgPressed;
-        else if (hovering) fill = bgHover;
+        else if (hoverProgress > 0) {
+            fill = interpolateColor(bg, bgHover, hoverProgress);
+        }
 
-        // shadow first
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        // shadow: selalu digambar DI DALAM bounds agar tidak ter-clip
-        int shadowOffset = pressing ? 6 : (hovering ? 4 : 5);
-        int shadowY = ys + shadowOffset;
-        int shadowH = Math.max(0, (h - 1) - shadowOffset);
+        // ===== SOFT SHADOW (dalam bounds) =====
+        if (isEnabled()) {
+            int shadowLayers = 3;
+            for (int i = shadowLayers; i >= 1; i--) {
+                int alpha = pressing ? 15 : (int)(8 + 4 * hoverProgress);
+                g2.setColor(new Color(0, 0, 0, alpha));
+                g2.fillRoundRect(bx + i, by + ys + i + 2, bw - i, bh - i, bArc, bArc);
+            }
+        }
 
-        int shadowAlpha = 10;
-        if (isEnabled()) shadowAlpha = pressing ? 32 : (hovering ? 16 : 20);
-        g2.setColor(new Color(0, 0, 0, shadowAlpha));
-        // pakai arc yang aman untuk tinggi shadow
-        int arcShadow = Math.max(6, Math.min(arc, shadowH));
-        g2.fillRoundRect(0, shadowY, w - 1, shadowH, arcShadow, arcShadow);
+        // ===== OUTER GLOW saat hover (soft, dalam bounds) =====
+        if (hoverProgress > 0 && isEnabled()) {
+            int glowAlpha = (int)(30 * hoverProgress);
+            g2.setColor(new Color(bgHover.getRed(), bgHover.getGreen(), bgHover.getBlue(), glowAlpha));
+            g2.fillRoundRect(bx - 2, by + ys - 2, bw + 4, bh + 4, bArc + 4, bArc + 4);
+        }
 
-        // button body (slightly moves down when pressed)
-        g2.setColor(fill);
-        g2.fillRoundRect(0, ys, w - 1, h - 1, arc, arc);
+        // ===== BUTTON BODY =====
+        // Gradient background saat hover untuk efek depth
+        if (hoverProgress > 0 && isEnabled() && !pressing) {
+            GradientPaint gradient = new GradientPaint(
+                bx, by + ys, brightenColor(fill, 0.1f * hoverProgress),
+                bx, by + ys + bh, fill
+            );
+            g2.setPaint(gradient);
+        } else {
+            g2.setColor(fill);
+        }
+        g2.fillRoundRect(bx, by + ys, bw, bh, bArc, bArc);
 
-        g2.setColor(borderColor);
-        g2.drawRoundRect(0, ys, w - 1, h - 1, arc, arc);
+        // ===== SHINE SWEEP EFFECT saat hover =====
+        if (hoverProgress > 0.3f && isEnabled() && !pressing) {
+            Shape oldClip = g2.getClip();
+            g2.setClip(new RoundRectangle2D.Float(bx, by + ys, bw, bh, bArc, bArc));
+            
+            int shineWidth = bw / 3;
+            int shineX = (int)(shinePosition * (bw + shineWidth)) + bx - shineWidth / 2;
+            
+            // Gradient shine yang halus
+            GradientPaint shine = new GradientPaint(
+                shineX, 0, new Color(255, 255, 255, 0),
+                shineX + shineWidth / 2, 0, new Color(255, 255, 255, (int)(50 * hoverProgress)),
+                true
+            );
+            g2.setPaint(shine);
+            g2.fillRect(shineX, by + ys, shineWidth, bh);
+            
+            g2.setClip(oldClip);
+        }
+
+        // ===== TOP HIGHLIGHT untuk efek glossy =====
+        if (isEnabled()) {
+            Shape oldClip = g2.getClip();
+            g2.setClip(new RoundRectangle2D.Float(bx, by + ys, bw, bh / 2, bArc, bArc));
+            int highlightAlpha = pressing ? 10 : (int)(20 + 15 * hoverProgress);
+            g2.setColor(new Color(255, 255, 255, highlightAlpha));
+            g2.fillRoundRect(bx, by + ys, bw, bh / 2, bArc, bArc);
+            g2.setClip(oldClip);
+        }
+
+        // ===== RIPPLE EFFECT saat klik =====
+        if (rippleActive && rippleProgress > 0) {
+            Shape oldClip = g2.getClip();
+            g2.setClip(new RoundRectangle2D.Float(bx, by + ys, bw, bh, bArc, bArc));
+            
+            int maxRadius = (int) Math.sqrt(bw * bw + bh * bh);
+            int rippleRadius = (int)(maxRadius * rippleProgress);
+            int rippleAlpha = (int)(100 * (1 - rippleProgress));
+            
+            // Radial gradient untuk ripple yang lebih smooth
+            g2.setColor(new Color(255, 255, 255, rippleAlpha));
+            g2.fillOval(
+                rippleCenter.x - rippleRadius, 
+                rippleCenter.y - rippleRadius + ys, 
+                rippleRadius * 2, 
+                rippleRadius * 2
+            );
+            
+            g2.setClip(oldClip);
+        }
+
+        // ===== BORDER =====
+        if (hoverProgress > 0 && isEnabled()) {
+            Color hoverBorder = brightenColor(borderColor, 0.2f * hoverProgress);
+            g2.setColor(hoverBorder);
+            g2.setStroke(new BasicStroke(1.5f));
+        } else {
+            g2.setColor(borderColor);
+            g2.setStroke(new BasicStroke(1f));
+        }
+        g2.drawRoundRect(bx, by + ys, bw - 1, bh - 1, bArc, bArc);
+
+        // ===== INNER BORDER HIGHLIGHT saat hover =====
+        if (hoverProgress > 0 && isEnabled() && !pressing) {
+            g2.setColor(new Color(255, 255, 255, (int)(20 * hoverProgress)));
+            g2.setStroke(new BasicStroke(1f));
+            g2.drawRoundRect(bx + 1, by + ys + 1, bw - 3, bh - 3, bArc - 2, bArc - 2);
+        }
 
         g2.dispose();
 
-        // draw text/icon shifted together with the button body
+        // Draw text dengan offset yang sama
         Graphics2D gText = (Graphics2D) g.create();
         gText.translate(0, ys);
         super.paintComponent(gText);
         gText.dispose();
+    }
+    
+    // Helper: interpolasi warna
+    private Color interpolateColor(Color c1, Color c2, float ratio) {
+        int r = (int)(c1.getRed() + (c2.getRed() - c1.getRed()) * ratio);
+        int gr = (int)(c1.getGreen() + (c2.getGreen() - c1.getGreen()) * ratio);
+        int b = (int)(c1.getBlue() + (c2.getBlue() - c1.getBlue()) * ratio);
+        return new Color(
+            Math.max(0, Math.min(255, r)),
+            Math.max(0, Math.min(255, gr)),
+            Math.max(0, Math.min(255, b))
+        );
+    }
+    
+    // Helper: brighten warna
+    private Color brightenColor(Color c, float factor) {
+        int r = Math.min(255, (int)(c.getRed() + (255 - c.getRed()) * factor));
+        int gr = Math.min(255, (int)(c.getGreen() + (255 - c.getGreen()) * factor));
+        int b = Math.min(255, (int)(c.getBlue() + (255 - c.getBlue()) * factor));
+        return new Color(r, gr, b);
     }
 }
