@@ -697,6 +697,20 @@ public class FormPanel extends JPanel {
     private final JTextArea txtCatatan = new JTextArea(3, 20);
 
     public void setModeCreateDistribution() {
+        // Validasi: cek apakah ada saldo uang atau barang yang tersedia
+        double saldoUang = app.saldoUang();
+        boolean adaBarang = app.adaBarangTersedia();
+        
+        if (saldoUang <= 0 && !adaBarang) {
+            JOptionPane.showMessageDialog(this,
+                    "Tidak dapat membuat penyaluran!\n\n" +
+                    "• Saldo uang: Rp 0\n" +
+                    "• Barang tersedia: Tidak ada\n\n" +
+                    "Silakan tambahkan donasi terlebih dahulu.",
+                    "Tidak Ada Stok", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
         applyTabMode(TabMode.DISTRIBUTION);
 
         editModeDistribution = false;
@@ -706,7 +720,14 @@ public class FormPanel extends JPanel {
         txtSalurId.setText(Util.IdGenerator.nextDistributionId(app.getDistributions()));
         txtSalurTanggal.setText(java.time.LocalDate.now().toString());
         txtPenerima.setText("");
-        cmbSalurJenis.setSelectedItem("UANG");
+        
+        // Auto-select jenis berdasarkan ketersediaan
+        if (saldoUang > 0) {
+            cmbSalurJenis.setSelectedItem("UANG");
+        } else {
+            cmbSalurJenis.setSelectedItem("BARANG");
+        }
+        
         txtSalurKategori.setText("");
         txtSalurNominal.setText("");
         txtSalurNamaBarang.setText("");
@@ -812,6 +833,27 @@ public class FormPanel extends JPanel {
                 }
                 if (jumlahBarang <= 0) {
                     JOptionPane.showMessageDialog(this, "Jumlah barang harus > 0!", "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // Validasi stok barang
+                int stokSaatIni = app.getStokBarangByNama(namaBarang);
+                // Jika edit, stok harus dihitung dengan "mengembalikan" jumlah lama
+                if (editModeDistribution && editingDistribution != null 
+                        && "BARANG".equalsIgnoreCase(editingDistribution.getJenis())
+                        && namaBarang.equalsIgnoreCase(editingDistribution.getNamaBarang())) {
+                    stokSaatIni += editingDistribution.getJumlahBarang();
+                }
+                if (stokSaatIni <= 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "Barang '" + namaBarang + "' tidak tersedia!\nStok saat ini: 0",
+                            "Validasi", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                if (jumlahBarang > stokSaatIni) {
+                    JOptionPane.showMessageDialog(this,
+                            "Stok barang '" + namaBarang + "' tidak mencukupi!\nStok saat ini: " + stokSaatIni,
+                            "Validasi", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
             }
