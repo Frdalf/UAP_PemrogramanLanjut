@@ -25,7 +25,7 @@ public class DonationTab extends JPanel {
     });
 
     private final DefaultTableModel model = new DefaultTableModel(
-            new Object[]{"ID", "Tanggal", "DonorId", "Jenis", "Kategori", "Nominal", "Barang", "Qty", "Catatan"}, 0
+            new Object[]{"ID", "Tanggal", "DonorId", "Jenis", "Kategori", "Nominal", "Sisa Nominal", "Barang", "Qty", "Sisa Qty", "Catatan"}, 0
     ) {
         @Override public boolean isCellEditable(int r, int c) { return false; }
     };
@@ -187,7 +187,28 @@ public class DonationTab extends JPanel {
         view = filtered;
         model.setRowCount(0);
 
+        // Hitung sisa saldo uang (total uang masuk - total uang keluar)
+        double sisaSaldoUang = app.saldoUang();
+        
+        // Hitung sisa stok barang per nama barang
+        java.util.Map<String, Integer> sisaStokBarang = app.getStokBarang();
+
         for (Donation d : view) {
+            String sisaNominal = "";
+            String sisaQty = "";
+            
+            if ("UANG".equalsIgnoreCase(d.getJenis())) {
+                // Untuk uang, tampilkan sisa saldo global
+                sisaNominal = MoneyUtil.format(Math.max(0, sisaSaldoUang));
+            } else if ("BARANG".equalsIgnoreCase(d.getJenis())) {
+                // Untuk barang, tampilkan sisa stok berdasarkan nama barang
+                String namaBarang = d.getNamaBarang();
+                if (namaBarang != null && !namaBarang.isEmpty()) {
+                    int sisa = sisaStokBarang.getOrDefault(namaBarang.toLowerCase().trim(), 0);
+                    sisaQty = String.valueOf(Math.max(0, sisa));
+                }
+            }
+            
             model.addRow(new Object[]{
                     safe(d.getDonasiId()),
                     d.getTanggal(),
@@ -195,8 +216,10 @@ public class DonationTab extends JPanel {
                     safe(d.getJenis()),
                     safe(d.getKategori()),
                     MoneyUtil.format(d.getNominal()),
+                    sisaNominal,
                     safe(d.getNamaBarang()),
                     String.valueOf(d.getJumlahBarang()),
+                    sisaQty,
                     safe(d.getCatatan())
             });
         }

@@ -282,6 +282,67 @@ public class MainFrame extends JFrame {
         return totalUangMasuk() - totalUangKeluar();
     }
 
+    /**
+     * Menghitung stok barang yang tersedia berdasarkan nama barang.
+     * Stok = total barang masuk (donasi) - total barang keluar (penyaluran)
+     * @return Map dengan key = nama barang (lowercase), value = jumlah tersedia
+     */
+    public Map<String, Integer> getStokBarang() {
+        Map<String, Integer> stok = new HashMap<>();
+        
+        // Hitung barang masuk dari donasi
+        for (Model.Donation d : donations) {
+            if ("BARANG".equalsIgnoreCase(d.getJenis()) && d.getNamaBarang() != null && !d.getNamaBarang().isEmpty()) {
+                String key = d.getNamaBarang().toLowerCase().trim();
+                stok.put(key, stok.getOrDefault(key, 0) + d.getJumlahBarang());
+            }
+        }
+        
+        // Kurangi dengan barang keluar dari distribusi
+        for (Model.Distribution dist : distributions) {
+            if ("BARANG".equalsIgnoreCase(dist.getJenis()) && dist.getNamaBarang() != null && !dist.getNamaBarang().isEmpty()) {
+                String key = dist.getNamaBarang().toLowerCase().trim();
+                stok.put(key, stok.getOrDefault(key, 0) - dist.getJumlahBarang());
+            }
+        }
+        
+        return stok;
+    }
+
+    /**
+     * Mendapatkan stok barang tertentu berdasarkan nama.
+     * @param namaBarang nama barang yang dicari
+     * @return jumlah stok tersedia (0 jika tidak ada)
+     */
+    public int getStokBarangByNama(String namaBarang) {
+        if (namaBarang == null || namaBarang.isEmpty()) return 0;
+        Map<String, Integer> stok = getStokBarang();
+        return stok.getOrDefault(namaBarang.toLowerCase().trim(), 0);
+    }
+
+    /**
+     * Mendapatkan daftar nama barang yang memiliki stok > 0
+     * @return List nama barang yang tersedia
+     */
+    public java.util.List<String> getBarangTersedia() {
+        java.util.List<String> result = new java.util.ArrayList<>();
+        Map<String, Integer> stok = getStokBarang();
+        for (Map.Entry<String, Integer> entry : stok.entrySet()) {
+            if (entry.getValue() > 0) {
+                result.add(entry.getKey());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Cek apakah ada barang yang tersedia untuk disalurkan
+     * @return true jika ada minimal 1 jenis barang dengan stok > 0
+     */
+    public boolean adaBarangTersedia() {
+        return !getBarangTersedia().isEmpty();
+    }
+
     public Map<java.time.YearMonth, Double> getMonthlyUangMasukLast6Months() {
         Map<java.time.YearMonth, Double> map = new HashMap<>();
         for (Model.Donation d : getDonations()) {
