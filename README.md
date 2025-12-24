@@ -33,7 +33,7 @@ Data disimpan menggunakan file CSV sehingga mudah dibaca, diuji, dan dikelola ta
 - Melakukan pengujian manual terhadap seluruh fitur aplikasi
 
 ## Stuktur Aplikasi
-Struktu aplikasi dibagi berdasarkan tanggung jawab masing-masing komponen
+Struktu aplikasi dibagi berdasarkan tanggung jawab masing-masing komponen  
 src/
 ├── App/              → Entry point aplikasi
 ├── Model/            → Class entitas (Donor, Donation, Distribution)
