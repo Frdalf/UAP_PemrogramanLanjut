@@ -34,10 +34,10 @@ Data disimpan menggunakan file CSV sehingga mudah dibaca, diuji, dan dikelola ta
 
 ## Stuktur Aplikasi
 Struktu aplikasi dibagi berdasarkan tanggung jawab masing-masing komponen  
-src/
-├── App/              → Entry point aplikasi
-├── Model/            → Class entitas (Donor, Donation, Distribution)
-├── Repo/             → CRUD & file handling (CSV)
-├── ui/               → Tampilan GUI Java Swing
-├── Util/             → Class helper (CSV, ID, format uang)
-└── Data/             → File CSV penyimpanan data
+src/  
+├── App/              → Entry point aplikasi  
+├── Model/            → Class entitas (Donor, Donation, Distribution)  
+├── Repo/             → CRUD & file handling (CSV)  
+├── ui/               → Tampilan GUI Java Swing  
+├── Util/             → Class helper (CSV, ID, format uang)  
+└── Data/             → File CSV penyimpanan data  
