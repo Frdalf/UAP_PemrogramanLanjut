@@ -12,13 +12,8 @@
 ## Deskripsi Aplikasi
 Aplikasi Sistem Donasi merupakan aplikasi desktop berbasis Java (Swing) yang digunakan untuk mengelola data donasi secara terstruktur.
 Aplikasi ini dirancang untuk membantu proses:
-
-Pendataan donatur
-
-Pencatatan donasi masuk
-
-Pengelolaan penyaluran donasi
-
-Penyajian dashboard & laporan
-
+- Pendataan donatur  
+- Pencatatan donasi masuk  
+- Pengelolaan penyaluran donasi  
+- Penyajian dashboard & laporan  
 Data disimpan menggunakan file CSV sehingga mudah dibaca, diuji, dan dikelola tanpa database eksternal.
