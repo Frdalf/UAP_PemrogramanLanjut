@@ -1,6 +1,6 @@
 ## **APLIKASI SISTEM DONASI**
 
->**Ujian Akhir Praktikum - Pemrograman Lanjut  **
+>**Ujian Akhir Praktikum - Pemrograman Lanjut**  
 >🏛️ Universitas Muhammadiyah Malang - 2025
 
 ## 👥 Nama Anggota
