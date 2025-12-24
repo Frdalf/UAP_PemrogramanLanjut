@@ -32,12 +32,20 @@ Data disimpan menggunakan file CSV sehingga mudah dibaca, diuji, dan dikelola ta
 - Mengembangkan aplikasi desktop berbasis Java Swing
 - Melakukan pengujian manual terhadap seluruh fitur aplikasi
 
-## Stuktur Aplikasi
+## 📶 Stuktur Aplikasi
 Struktu aplikasi dibagi berdasarkan tanggung jawab masing-masing komponen  
 src/  
-├── App/              → Entry point aplikasi  
-├── Model/            → Class entitas (Donor, Donation, Distribution)  
-├── Repo/             → CRUD & file handling (CSV)  
-├── ui/               → Tampilan GUI Java Swing  
-├── Util/             → Class helper (CSV, ID, format uang)  
-└── Data/             → File CSV penyimpanan data  
+├── App/              → Entry point aplikasi
+├── Model/            → Class entitas (Donor, Donation, Distribution)
+├── Repo/             → CRUD & file handling (CSV)
+├── ui/               → Tampilan GUI Java Swing
+├── Util/             → Class helper (CSV, ID, format uang)
+└── Data/             → File CSV penyimpanan data
+
+## 💻 Fitur Aplikasi
+### Dashboard
+- Menampilkan halaman utama aplikasi
+- Navigasi ke seluruh menu utama
+### Managemen Donor
+- Tambah data donor
+
