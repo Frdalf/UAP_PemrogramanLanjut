@@ -43,9 +43,33 @@ src/
 └── Data/             → File CSV penyimpanan data
 
 ## 💻 Fitur Aplikasi
-### Dashboard
+### 💠 Dashboard
 - Menampilkan halaman utama aplikasi
 - Navigasi ke seluruh menu utama
-### Managemen Donor
+### 💠 Managemen Donor
 - Tambah data donor
+- Lihat daftar donor
+- Edit data donor
+- Hapus data donor
+- Pencarian dan pengurutan data donor
+### 💠 Manajemen Donasi
+- Tambah data donasi
+- Edit data donasi
+- Hapus data donasi
+- Validasi input nominal donasi
+### 💠 Manajemen Distribusi Donasi
+- Tambah data distribusi donasi
+- Edit data distribusi
+- Hapus data distribusi
+- Pencatatan keterangan dan tanggal distribusi
+### 💠 Laporan
+- Menampilkan ringkasan dan histori transaksi donasi dan distribusi
+### 💠 Penyimpanan Data
+- Penyimpanan data menggunakan file CSV
+- Data tidak hilang setelah aplikasi ditutup
+### 💠 Tampilan & Validasi
+- Validasi input angka dan nominal
+- Notifikasi sistem
+- Dark mode
+- Tampilan antarmuka user-friendly
 
