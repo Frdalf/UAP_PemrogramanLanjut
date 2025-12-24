@@ -48,35 +48,17 @@ src/
 
 
 ## 💻 Fitur Aplikasi
-### 💠 Dashboard
-- Menampilkan halaman utama aplikasi
-- Navigasi ke seluruh menu utama
-### 💠 Managemen Donor
-- Tambah data donor
-- Lihat daftar donor
-- Edit data donor
-- Hapus data donor
-- Pencarian dan pengurutan data donor
-### 💠 Manajemen Donasi
-- Tambah data donasi
-- Edit data donasi
-- Hapus data donasi
-- Validasi input nominal donasi
-### 💠 Manajemen Distribusi Donasi
-- Tambah data distribusi donasi
-- Edit data distribusi
-- Hapus data distribusi
-- Pencatatan keterangan dan tanggal distribusi
-### 💠 Laporan
-- Menampilkan ringkasan dan histori transaksi donasi dan distribusi
-### 💠 Penyimpanan Data
-- Penyimpanan data menggunakan file CSV
-- Data tidak hilang setelah aplikasi ditutup
-### 💠 Tampilan & Validasi
-- Validasi input angka dan nominal
-- Notifikasi sistem
-- Dark mode
-- Tampilan antarmuka user-friendly
+## 💻 Fitur Aplikasi
+
+| Modul / Fitur | Deskripsi |
+|--------------|----------|
+| **Dashboard** | Menampilkan halaman utama aplikasi dan navigasi ke seluruh menu utama |
+| **Manajemen Donor** | Tambah, lihat, edit, hapus data donor, serta pencarian dan pengurutan data donor |
+| **Manajemen Donasi** | Tambah, edit, hapus data donasi, serta validasi input nominal donasi |
+| **Manajemen Distribusi Donasi** | Tambah, edit, hapus data distribusi, pencatatan keterangan dan tanggal distribusi |
+| **Laporan / History** | Menampilkan ringkasan dan histori transaksi donasi serta distribusi |
+| **Penyimpanan Data** | Penyimpanan data menggunakan file CSV dan data tetap tersimpan setelah aplikasi ditutup |
+| **Validasi & Tampilan** | Validasi input angka dan nominal, notifikasi sistem, dark mode, dan tampilan antarmuka user-friendly |
 
 ## 🔁 Alur Kerja Aplikasi
 1. User melakukan input melalui UI
