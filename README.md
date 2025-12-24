@@ -47,7 +47,7 @@ src/
 ```
 
 
-## 💻 Fitur Aplikasi
+
 ## 💻 Fitur Aplikasi
 
 | Modul / Fitur | Deskripsi |
