@@ -20,7 +20,7 @@ Aplikasi ini dirancang untuk membantu proses:
 Data disimpan menggunakan file CSV sehingga mudah dibaca, diuji, dan dikelola tanpa database eksternal.
 
 ## ⚙️ Teknologi yang Digunakan  
-- Bahasa: Java
+- Java
 - GUI: Java Swing
 - IDE: IntelliJ IDEA
 - Penyimpanan Data: CSV File
@@ -73,9 +73,33 @@ src/
 - Dark mode
 - Tampilan antarmuka user-friendly
 
-## Alur Kerja Aplikasi
+## 🔁 Alur Kerja Aplikasi
 1. User melakukan input melalui UI
 2. Data dibentuk menjadi objek Model
 3. Operasi CRUD dilakukan oleh Repository
 4. Data disimpan atau dibaca dari file CSV
 5. Data ditampilkan kembali pada tabel UI
+
+## 🧬 Pengujian Aplikasi
+Pengujian dilakukan menggunakan testing manual berbasis skenario.  
+Setiap fitur diuji dengan mencatat:
+- Skenario pengujian
+- Langkah pengujian
+- Hasil yang diharapkan
+- Hasil aktual
+- Status pengujian
+Hasil pengujian dicatat dalam bentuk tabel testing manual dan menunjukkan bahwa seluruh fitur utama aplikasi berjalan dengan baik.
+
+## ▶️ Cara Menjalankan Aplikasi
+1. Buka project menggunakan IntelliJ IDEA
+2. Pastikan JDK telah terkonfigurasi
+3. Jalankan file: _App.java_
+4. Aplikasi akan terbuka dalam bentuk GUI desktop
+
+
+## 📌 Catatan
+Aplikasi ini dikembangkan untuk keperluan akademik dan sebagai implementasi materi Pemrograman Lanjut.
+
+## 👥 Pembagian Tugas Tim
+- Pengembang Program: Implementasi fitur dan logika aplikasi
+- Dokumentasi & Testing: Penyusunan README, testing manual, code review, dan laporan
