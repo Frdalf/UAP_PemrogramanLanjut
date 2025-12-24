@@ -73,3 +73,9 @@ src/
 - Dark mode
 - Tampilan antarmuka user-friendly
 
+## Alur Kerja Aplikasi
+1. User melakukan input melalui UI
+2. Data dibentuk menjadi objek Model
+3. Operasi CRUD dilakukan oleh Repository
+4. Data disimpan atau dibaca dari file CSV
+5. Data ditampilkan kembali pada tabel UI
