@@ -6,7 +6,7 @@ public class Distribution {
     private final String salurId;
     private LocalDate tanggal;
     private String penerima;
-    private String jenis;      // UANG / BARANG
+    private String jenis;      // jenis donasi
     private String kategori;
     private double nominal;
     private String namaBarang;

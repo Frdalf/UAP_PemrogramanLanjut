@@ -6,11 +6,11 @@ public class Donation {
     private final String donasiId;
     private LocalDate tanggal;
     private String donorId;
-    private String jenis;      // "UANG" / "BARANG"
+    private String jenis;      // jenis donasi
     private String kategori;
-    private double nominal;    // dipakai kalau UANG
-    private String namaBarang; // dipakai kalau BARANG
-    private int jumlahBarang;  // dipakai kalau BARANG
+    private double nominal;    // digunakan untuk uang
+    private String namaBarang; // digunakan untuk barang
+    private int jumlahBarang;
     private String catatan;
 
     public Donation(String donasiId, LocalDate tanggal, String donorId, String jenis, String kategori,

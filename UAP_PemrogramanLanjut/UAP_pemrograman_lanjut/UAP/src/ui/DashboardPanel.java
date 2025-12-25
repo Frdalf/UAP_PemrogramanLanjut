@@ -8,10 +8,7 @@ import java.time.YearMonth;
 import java.util.*;
 import java.util.List;
 
-/**
- * Dashboard panel with statistics cards and chart.
- * Supports dark mode via ThemeManager.
- */
+
 public class DashboardPanel extends JPanel {
     private final MainFrame app;
 
@@ -31,13 +28,13 @@ public class DashboardPanel extends JPanel {
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        // Wrapper dengan background aesthetic
+
         DashboardBackground root = new DashboardBackground();
         root.setLayout(new BorderLayout(18, 18));
         root.setBorder(new EmptyBorder(26, 26, 26, 26));
         add(root, BorderLayout.CENTER);
 
-        // Title
+
         lblTitle.setFont(new Font("SansSerif", Font.BOLD, 56));
         lblTitle.setForeground(ThemeManager.getTitleColor());
         ThemeManager.addThemeChangeListener(() -> lblTitle.setForeground(ThemeManager.getTitleColor()));
@@ -46,11 +43,11 @@ public class DashboardPanel extends JPanel {
         header.setOpaque(false);
         header.add(lblTitle, BorderLayout.WEST);
 
-        // Cards row
+
         JPanel cardsRow = new JPanel(new GridLayout(1, 3, 18, 18));
         cardsRow.setOpaque(false);
 
-        // Icon pakai emoji biar langsung jalan tanpa file icon
+
         cardDonor = new StatCard("Total Donatur:", "0", "👤", ThemeManager.getStatCardDonor());
         cardMasuk = new StatCard("Uang Masuk:", "0 IDR", "💰", ThemeManager.getStatCardMasuk());
         cardSaldo = new StatCard("Saldo:", "0 IDR", "💳", ThemeManager.getStatCardSaldo());
@@ -59,7 +56,7 @@ public class DashboardPanel extends JPanel {
         cardsRow.add(cardMasuk);
         cardsRow.add(cardSaldo);
 
-        // Chart container
+
         JPanel chartWrap = new RoundedPanel(22, ThemeManager.getCardBackground());
         chartWrap.setLayout(new BorderLayout(10, 10));
         chartWrap.setBorder(new EmptyBorder(16, 16, 16, 16));
@@ -72,7 +69,7 @@ public class DashboardPanel extends JPanel {
         chartWrap.add(chartInfo, BorderLayout.NORTH);
         chartWrap.add(chart, BorderLayout.CENTER);
 
-        // Susun layout (seperti desainmu)
+
         JPanel topArea = new JPanel();
         topArea.setOpaque(false);
         topArea.setLayout(new BoxLayout(topArea, BoxLayout.Y_AXIS));
@@ -101,7 +98,7 @@ public class DashboardPanel extends JPanel {
         cardMasuk.setValue(formatIDR(uangMasuk));
         cardSaldo.setValue(formatIDR(saldo));
 
-        // Update colors based on theme
+        // Update colors sesuai dengan tema
         lblTitle.setForeground(ThemeManager.getTitleColor());
         cardDonor.updateTheme(ThemeManager.getStatCardDonor());
         cardMasuk.updateTheme(ThemeManager.getStatCardMasuk());
@@ -112,7 +109,7 @@ public class DashboardPanel extends JPanel {
                 " | Uang Keluar: " + formatPlain(uangKeluar) +
                 " | Saldo: " + formatPlain(saldo));
 
-        // Data chart: total donasi uang per bulan (6 bulan terakhir)
+
         Map<YearMonth, Double> masukPerBulan = app.getMonthlyUangMasukLast6Months();
         chart.setSeries(buildSeriesLast6Months(masukPerBulan));
 
@@ -253,7 +250,7 @@ public class DashboardPanel extends JPanel {
         }
     }
 
-    // Kotak ikon rounded seperti desain
+    // Kotak ikon rounded
     private static class IconPill extends JPanel {
         private final String emoji;
         private Color bg;
@@ -297,7 +294,7 @@ public class DashboardPanel extends JPanel {
         }
     }
 
-    // Chart garis sederhana (tanpa library)
+
     private static class SimpleLineChart extends JPanel {
         private List<Double> series = List.of(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         private JLabel infoLabel;

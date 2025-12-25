@@ -8,13 +8,13 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
 /**
- * Table theme that supports dark/light mode via ThemeManager.
+ * Tema tabel yang mendukung mode gelap dan terang
+ * melalui ThemeManager.
  */
 public final class SimpleTableTheme {
 
     private SimpleTableTheme() {}
 
-    // ===== Dynamic Theme Colors =====
     private static Color getBaseBg() {
         return ThemeManager.isDarkMode() ? new Color(18, 20, 28) : new Color(245, 248, 252);
     }
@@ -47,7 +47,6 @@ public final class SimpleTableTheme {
         return ThemeManager.isDarkMode() ? new Color(220, 233, 255) : new Color(40, 50, 70);
     }
 
-    // ===== Public API =====
     public static void applyBlue(JTable table, JScrollPane sp) {
         applyBlueInternal(table);
 
@@ -59,7 +58,7 @@ public final class SimpleTableTheme {
             sp.getViewport().setOpaque(true);
             sp.getViewport().setBackground(getBaseBg());
             
-            // Register theme listener to update colors when theme changes
+            // listener tema agar warna tabel ikut berubah saat tema diganti
             ThemeManager.addThemeChangeListener(() -> {
                 table.setBackground(getBaseBg());
                 sp.getViewport().setBackground(getBaseBg());
@@ -73,11 +72,10 @@ public final class SimpleTableTheme {
         applyBlue(table, null);
     }
 
-    // ===== Implementation =====
+
     private static void applyBlueInternal(JTable table) {
         table.setRowHeight(38);
 
-        // ✅ biar nggak kaku, tapi tetap rapi
         table.setIntercellSpacing(new Dimension(0, 6)); // jarak antar row
         table.setShowHorizontalLines(false);
         table.setShowVerticalLines(false);
@@ -86,12 +84,11 @@ public final class SimpleTableTheme {
         table.setAutoCreateRowSorter(false);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // ✅ penting: gap antar row pakai background table
+        //gap antar row pakai background table
         table.setOpaque(true);
         table.setBackground(getBaseBg());
         table.setForeground(getFg());
 
-        // Header
         JTableHeader header = table.getTableHeader();
         header.setReorderingAllowed(false);
         header.setResizingAllowed(true);
@@ -104,7 +101,6 @@ public final class SimpleTableTheme {
         table.setDefaultRenderer(Number.class, body);
     }
 
-    // ===== Renderers =====
     private static class HeaderRenderer extends DefaultTableCellRenderer {
         HeaderRenderer() {
             setOpaque(true);

@@ -13,8 +13,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Tab Donasi Masuk (List) dengan kontrol soft-blue: Search + Sort + tombol aksi.
+ * Tab donasi masuk yang menampilkan daftar data donasi
+ * dengan fitur pencarian, pengurutan, dan tombol aksi.
  */
+
 public class DonationTab extends JPanel {
     private final MainFrame app;
 
@@ -198,10 +200,8 @@ public class DonationTab extends JPanel {
             String sisaQty = "";
             
             if ("UANG".equalsIgnoreCase(d.getJenis())) {
-                // Untuk uang, tampilkan sisa saldo global
                 sisaNominal = MoneyUtil.format(Math.max(0, sisaSaldoUang));
             } else if ("BARANG".equalsIgnoreCase(d.getJenis())) {
-                // Untuk barang, tampilkan sisa stok berdasarkan nama barang
                 String namaBarang = d.getNamaBarang();
                 if (namaBarang != null && !namaBarang.isEmpty()) {
                     int sisa = sisaStokBarang.getOrDefault(namaBarang.toLowerCase().trim(), 0);

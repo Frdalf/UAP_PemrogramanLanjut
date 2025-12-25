@@ -16,7 +16,7 @@ public class PillButton extends JButton {
     private boolean hovering = false;
     private boolean pressing = false;
     
-    // Animasi hover
+
     private float hoverProgress = 0f;
     private Timer animationTimer;
     private float rippleProgress = 0f;
@@ -39,11 +39,11 @@ public class PillButton extends JButton {
 
         setBorder(new EmptyBorder(10, 18, 10, 18));
 
-        // Animation timer untuk smooth transitions
+        // Animasi untuk transisi
         animationTimer = new Timer(16, e -> {
             boolean needRepaint = false;
             
-            // Animate hover progress
+
             if (hovering && hoverProgress < 1f) {
                 hoverProgress = Math.min(1f, hoverProgress + 0.15f);
                 needRepaint = true;
@@ -51,15 +51,15 @@ public class PillButton extends JButton {
                 hoverProgress = Math.max(0f, hoverProgress - 0.1f);
                 needRepaint = true;
             }
-            
-            // Animate shine sweep saat hover
+
+            // Menjalankan animasi shine sweep saat hover
             if (hovering) {
                 shinePosition += 0.04f;
                 if (shinePosition > 1.5f) shinePosition = -0.5f;
                 needRepaint = true;
             }
             
-            // Animate ripple
+            // Menjalankan animasi ripple (efek gelombang)
             if (rippleActive && rippleProgress < 1f) {
                 rippleProgress = Math.min(1f, rippleProgress + 0.1f);
                 needRepaint = true;
@@ -76,7 +76,6 @@ public class PillButton extends JButton {
             }
         });
 
-        // hover / pressed tracking
         addMouseListener(new MouseAdapter() {
             @Override 
             public void mouseEntered(MouseEvent e) { 
@@ -122,9 +121,9 @@ public class PillButton extends JButton {
     protected void paintComponent(Graphics g) {
         int w = getWidth();
         int h = getHeight();
-        int arc = h; // pill shape - full rounded
+        int arc = h;
 
-        // Margin untuk efek (shadow, dll) agar tidak terpotong
+
         int margin = 4;
         int bx = margin;
         int by = margin;
@@ -146,7 +145,7 @@ public class PillButton extends JButton {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        // ===== SOFT SHADOW (dalam bounds) =====
+        // SOFT SHADOW (dalam bounds)
         if (isEnabled()) {
             int shadowLayers = 3;
             for (int i = shadowLayers; i >= 1; i--) {
@@ -156,15 +155,14 @@ public class PillButton extends JButton {
             }
         }
 
-        // ===== OUTER GLOW saat hover (soft, dalam bounds) =====
+        // Efek cahaya luar saat hover (halus dan tidak keluar area)
         if (hoverProgress > 0 && isEnabled()) {
             int glowAlpha = (int)(30 * hoverProgress);
             g2.setColor(new Color(bgHover.getRed(), bgHover.getGreen(), bgHover.getBlue(), glowAlpha));
             g2.fillRoundRect(bx - 2, by + ys - 2, bw + 4, bh + 4, bArc + 4, bArc + 4);
         }
 
-        // ===== BUTTON BODY =====
-        // Gradient background saat hover untuk efek depth
+        //BUTTON BODY
         if (hoverProgress > 0 && isEnabled() && !pressing) {
             GradientPaint gradient = new GradientPaint(
                 bx, by + ys, brightenColor(fill, 0.1f * hoverProgress),
@@ -176,15 +174,14 @@ public class PillButton extends JButton {
         }
         g2.fillRoundRect(bx, by + ys, bw, bh, bArc, bArc);
 
-        // ===== SHINE SWEEP EFFECT saat hover =====
+        //SHINE SWEEP EFFECT saat hover
         if (hoverProgress > 0.3f && isEnabled() && !pressing) {
             Shape oldClip = g2.getClip();
             g2.setClip(new RoundRectangle2D.Float(bx, by + ys, bw, bh, bArc, bArc));
             
             int shineWidth = bw / 3;
             int shineX = (int)(shinePosition * (bw + shineWidth)) + bx - shineWidth / 2;
-            
-            // Gradient shine yang halus
+
             GradientPaint shine = new GradientPaint(
                 shineX, 0, new Color(255, 255, 255, 0),
                 shineX + shineWidth / 2, 0, new Color(255, 255, 255, (int)(50 * hoverProgress)),
@@ -196,7 +193,7 @@ public class PillButton extends JButton {
             g2.setClip(oldClip);
         }
 
-        // ===== TOP HIGHLIGHT untuk efek glossy =====
+        //TOP HIGHLIGHT untuk efek glossy
         if (isEnabled()) {
             Shape oldClip = g2.getClip();
             g2.setClip(new RoundRectangle2D.Float(bx, by + ys, bw, bh / 2, bArc, bArc));
@@ -206,7 +203,7 @@ public class PillButton extends JButton {
             g2.setClip(oldClip);
         }
 
-        // ===== RIPPLE EFFECT saat klik =====
+        //RIPPLE EFFECT saat klik
         if (rippleActive && rippleProgress > 0) {
             Shape oldClip = g2.getClip();
             g2.setClip(new RoundRectangle2D.Float(bx, by + ys, bw, bh, bArc, bArc));
@@ -214,8 +211,7 @@ public class PillButton extends JButton {
             int maxRadius = (int) Math.sqrt(bw * bw + bh * bh);
             int rippleRadius = (int)(maxRadius * rippleProgress);
             int rippleAlpha = (int)(100 * (1 - rippleProgress));
-            
-            // Radial gradient untuk ripple yang lebih smooth
+
             g2.setColor(new Color(255, 255, 255, rippleAlpha));
             g2.fillOval(
                 rippleCenter.x - rippleRadius, 
@@ -227,7 +223,7 @@ public class PillButton extends JButton {
             g2.setClip(oldClip);
         }
 
-        // ===== BORDER =====
+        // BORDER
         if (hoverProgress > 0 && isEnabled()) {
             Color hoverBorder = brightenColor(borderColor, 0.2f * hoverProgress);
             g2.setColor(hoverBorder);
@@ -238,7 +234,7 @@ public class PillButton extends JButton {
         }
         g2.drawRoundRect(bx, by + ys, bw - 1, bh - 1, bArc, bArc);
 
-        // ===== INNER BORDER HIGHLIGHT saat hover =====
+        //INNER BORDER HIGHLIGHT saat hover
         if (hoverProgress > 0 && isEnabled() && !pressing) {
             g2.setColor(new Color(255, 255, 255, (int)(20 * hoverProgress)));
             g2.setStroke(new BasicStroke(1f));
@@ -247,7 +243,7 @@ public class PillButton extends JButton {
 
         g2.dispose();
 
-        // Draw text dengan offset yang sama
+
         Graphics2D gText = (Graphics2D) g.create();
         gText.translate(0, ys);
         super.paintComponent(gText);

@@ -5,10 +5,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-/**
- * Toggle button for switching between light and dark mode.
- * Shows sun icon for light mode and moon icon for dark mode.
- */
+
 public class DarkModeToggle extends JButton {
     private boolean hover = false;
 
@@ -46,7 +43,7 @@ public class DarkModeToggle extends JButton {
         int h = getHeight();
         int arc = 14;
 
-        // Background on hover
+
         if (hover) {
             g2.setColor(new Color(255, 255, 255, 15));
             g2.fillRoundRect(4, 4, w - 8, h - 8, arc, arc);
@@ -54,7 +51,7 @@ public class DarkModeToggle extends JButton {
             g2.drawRoundRect(4, 4, w - 9, h - 9, arc, arc);
         }
 
-        // Draw icon (sun for light mode, moon for dark mode)
+        // ikon matahari (saat mode gelap aktif, klik untuk berpindah ke mode terang)
         int iconSize = 24;
         int cx = w / 2;
         int cy = h / 2;
@@ -63,10 +60,8 @@ public class DarkModeToggle extends JButton {
         g2.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         if (ThemeManager.isDarkMode()) {
-            // Draw sun icon (currently in dark mode, click to switch to light)
             drawSunIcon(g2, cx, cy, iconSize);
         } else {
-            // Draw moon icon (currently in light mode, click to switch to dark)
             drawMoonIcon(g2, cx, cy, iconSize);
         }
 
@@ -77,10 +72,8 @@ public class DarkModeToggle extends JButton {
     private void drawSunIcon(Graphics2D g2, int cx, int cy, int size) {
         int r = size / 4;
 
-        // Center circle (sun)
+        //matahari
         g2.drawOval(cx - r, cy - r, r * 2, r * 2);
-
-        // Sun rays
         int rayLen = size / 4;
         int rayDist = r + 3;
         for (int i = 0; i < 8; i++) {
@@ -96,21 +89,16 @@ public class DarkModeToggle extends JButton {
     private void drawMoonIcon(Graphics2D g2, int cx, int cy, int size) {
         int r = size / 3;
 
-        // Draw crescent moon using two overlapping circles
-        // First draw the outer circle (full moon)
+        // Menggambar bulan sabit menggunakan dua lingkaran yang saling tumpang tindih
         g2.setColor(new Color(255, 255, 255, 230));
-
-        // Create moon shape
         int offset = r / 2;
-
-        // Draw filled crescent
         g2.fillArc(cx - r, cy - r, r * 2, r * 2, -90, 360);
 
-        // Cut out part to create crescent
+        // potong sebagian untuk membentuk bulan sabit
         g2.setColor(ThemeManager.getSidebarGradientTop());
         g2.fillOval(cx - r + offset + 2, cy - r - 2, r * 2 - 4, r * 2 - 4);
 
-        // Draw small stars
+        // bintang
         g2.setColor(new Color(255, 255, 255, 200));
         int starSize = 3;
         g2.fillOval(cx + r - 2, cy - r + 2, starSize, starSize);

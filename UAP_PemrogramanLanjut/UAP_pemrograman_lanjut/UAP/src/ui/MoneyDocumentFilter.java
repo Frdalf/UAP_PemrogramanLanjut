@@ -74,7 +74,6 @@ public final class MoneyDocumentFilter extends DocumentFilter {
         try {
             value = Long.parseLong(digits);
         } catch (NumberFormatException ex) {
-            // kalau terlalu besar, biarkan kandidat lama (tidak crash)
             return;
         }
 

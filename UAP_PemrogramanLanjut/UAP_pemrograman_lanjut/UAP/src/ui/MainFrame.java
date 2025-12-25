@@ -61,7 +61,7 @@ public class MainFrame extends JFrame {
         donations.addAll(donationRepo.loadAll());
         distributions.addAll(distributionRepo.loadAll());
 
-        // ===== Sidebar (Nav) =====
+
         nav = new SidebarPanel();
         nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
         nav.setBorder(BorderFactory.createEmptyBorder(22, 16, 22, 16));
@@ -91,7 +91,7 @@ public class MainFrame extends JFrame {
         nav.add(navInputPenyaluran);
         nav.add(Box.createVerticalGlue());
         
-        // Dark mode toggle at bottom
+
         darkModeToggle = new DarkModeToggle();
         darkModeToggle.setAlignmentX(Component.CENTER_ALIGNMENT);
         darkModeToggle.addActionListener(e -> {
@@ -108,13 +108,13 @@ public class MainFrame extends JFrame {
         navInputPenyaluran.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 
-        // ===== Panels =====
+        // Panel
         dashboardPanel = new DashboardPanel(this);
         listPanel = new ListPanel(this);
         formPanel = new FormPanel(this);
         reportPanel = new ReportPanel(this);
-        
-        // Register theme change listener
+
+        //listener untuk perubahan tema
         ThemeManager.addThemeChangeListener(this::onThemeChanged);
 
         content.add(dashboardPanel, SCREEN_DASHBOARD);
@@ -122,7 +122,7 @@ public class MainFrame extends JFrame {
         content.add(formPanel, SCREEN_FORM);
         content.add(reportPanel, SCREEN_REPORT);
 
-        // ===== Action =====
+        // Action
         navDashboard.addActionListener(e -> showScreen(SCREEN_DASHBOARD));
         navList.addActionListener(e -> showScreen(SCREEN_LIST));
         navInputDonor.addActionListener(e -> {
@@ -134,12 +134,11 @@ public class MainFrame extends JFrame {
         navInputDonasi.addActionListener(e -> openNewDonationForm());
         navInputPenyaluran.addActionListener(e -> openNewDistributionForm());
 
-        // ===== Layout frame =====
         setLayout(new BorderLayout());
         add(nav, BorderLayout.WEST);
         add(content, BorderLayout.CENTER);
 
-        // ===== Default state =====
+        //  Default state
         refreshAll();
         showScreen(SCREEN_DASHBOARD);
     }
@@ -178,14 +177,12 @@ public class MainFrame extends JFrame {
             case SCREEN_LIST -> navList.setActive(true);
             case SCREEN_REPORT -> navReport.setActive(true);
             case SCREEN_FORM -> {
-                // kalau lagi di form, default aktifkan salah satu (opsional)
-                // biar gak "mati semua". Kamu bisa atur lebih spesifik nanti.
                 navInputDonor.setActive(true);
             }
         }
     }
 
-    // ====== Akses data ======
+    // Akses data
     public List<Donor> getDonors() { return donors; }
     public DonorRepository getDonorRepo() { return donorRepo; }
 
@@ -195,7 +192,7 @@ public class MainFrame extends JFrame {
         distributionRepo.saveAll(distributions);
     }
 
-    // ====== Navigasi Form ======
+    // Navigasi Form
     public void openNewDonorForm() {
         formPanel.setModeCreate();
         showScreen(SCREEN_FORM);
@@ -209,7 +206,7 @@ public class MainFrame extends JFrame {
         showScreen(SCREEN_FORM);
     }
 
-    // ====== Save to CSV ======
+    // Save to CSV
     public void persistDonors() {
         donorRepo.saveAll(donors);
     }
@@ -232,31 +229,25 @@ public class MainFrame extends JFrame {
         listPanel.refreshAllTables();
         reportPanel.refresh();
     }
-    
-    /**
-     * Called when theme changes (dark/light mode toggle).
-     * Repaints all components to apply new theme colors.
-     */
+
+
+     //Dipanggil saat tema aplikasi berubah (dark/light mode).
     private void onThemeChanged() {
         // Repaint entire frame to apply new theme
         SwingUtilities.invokeLater(() -> {
-            // Repaint navigation
             nav.repaint();
             darkModeToggle.repaint();
             for (NavButton btn : navButtons) {
                 btn.repaint();
             }
-            
-            // Refresh all panels to update their colors
+
             dashboardPanel.refresh();
             listPanel.refreshAllTables();
             reportPanel.refresh();
             formPanel.repaint();
-            
-            // Repaint content panel
+
             content.repaint();
-            
-            // Force full repaint
+
             repaint();
             revalidate();
         });
@@ -282,11 +273,7 @@ public class MainFrame extends JFrame {
         return totalUangMasuk() - totalUangKeluar();
     }
 
-    /**
-     * Menghitung stok barang yang tersedia berdasarkan nama barang.
-     * Stok = total barang masuk (donasi) - total barang keluar (penyaluran)
-     * @return Map dengan key = nama barang (lowercase), value = jumlah tersedia
-     */
+    //Menghitung stok barang yang tersedia berdasarkan nama barang.
     public Map<String, Integer> getStokBarang() {
         Map<String, Integer> stok = new HashMap<>();
         
@@ -309,21 +296,16 @@ public class MainFrame extends JFrame {
         return stok;
     }
 
-    /**
-     * Mendapatkan stok barang tertentu berdasarkan nama.
-     * @param namaBarang nama barang yang dicari
-     * @return jumlah stok tersedia (0 jika tidak ada)
-     */
+
+    // Mendapatkan stok barang tertentu berdasarkan nama.
     public int getStokBarangByNama(String namaBarang) {
         if (namaBarang == null || namaBarang.isEmpty()) return 0;
         Map<String, Integer> stok = getStokBarang();
         return stok.getOrDefault(namaBarang.toLowerCase().trim(), 0);
     }
 
-    /**
-     * Mendapatkan daftar nama barang yang memiliki stok > 0
-     * @return List nama barang yang tersedia
-     */
+
+    // Mendapatkan daftar nama barang yang memiliki stok > 0
     public java.util.List<String> getBarangTersedia() {
         java.util.List<String> result = new java.util.ArrayList<>();
         Map<String, Integer> stok = getStokBarang();
@@ -335,10 +317,7 @@ public class MainFrame extends JFrame {
         return result;
     }
 
-    /**
-     * Cek apakah ada barang yang tersedia untuk disalurkan
-     * @return true jika ada minimal 1 jenis barang dengan stok > 0
-     */
+    // Cek apakah ada barang yang tersedia untuk disalurkan
     public boolean adaBarangTersedia() {
         return !getBarangTersedia().isEmpty();
     }
@@ -351,7 +330,7 @@ public class MainFrame extends JFrame {
                 map.put(ym, map.getOrDefault(ym, 0.0) + d.getNominal());
             }
         }
-        // filter hanya 6 bulan terakhir (biar rapi)
+        // filter hanya 6 bulan terakhir
         java.time.YearMonth now = java.time.YearMonth.now();
         Map<java.time.YearMonth, Double> out = new HashMap<>();
         for (int i = 0; i < 6; i++) {

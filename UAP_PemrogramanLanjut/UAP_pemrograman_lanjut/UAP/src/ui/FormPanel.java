@@ -27,10 +27,10 @@ public class FormPanel extends JPanel {
 
     private final JLabel title = new JLabel();
 
-    // Root background (soft gradient)
+    // Background utama efek gradasi
     private final SoftFormUI.FormBackground root = new SoftFormUI.FormBackground();
 
-    // tabs harus jadi field supaya bisa kita ubah-ubah
+    // tabs harus jadi field supaya bisa di ubah-ubah
     private final JTabbedPane tabs = new JTabbedPane();
 
     // simpan panel tiap tab, biar bisa dipasang/lepas
@@ -77,11 +77,10 @@ public class FormPanel extends JPanel {
         add(root, BorderLayout.CENTER);
 
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        // Title uses theme color
+
         title.setForeground(ThemeManager.getTitleColor());
         ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
 
-        // build panel tab sekali saja
         donorTabPanel = buildDonorForm();
         donationTabPanel = buildDonationForm();
         distributionTabPanel = buildDistributionForm();
@@ -90,8 +89,7 @@ public class FormPanel extends JPanel {
         tabs.setBorder(BorderFactory.createEmptyBorder());
         tabs.setFocusable(false);
 
-        // Hide tab header strip + hilangkan content border/background bawaan JTabbedPane
-        // supaya area kosong di bawah form tetap menyatu dengan background (tidak jadi kotak abu-abu).
+        // Menyembunyikan header tab dan border bawaan agar form menyatu dengan background
         tabs.setUI(new BasicTabbedPaneUI() {
             @Override
             protected int calculateTabAreaHeight(int tabPlacement, int horizRunCount, int maxTabHeight) {
@@ -201,10 +199,13 @@ public class FormPanel extends JPanel {
         card.add(form, BorderLayout.CENTER);
         card.add(actions, BorderLayout.SOUTH);
 
-        // Form Donatur relatif pendek. Kalau CardPanel dipasang di CENTER,
-        // BorderLayout akan memaksa card mengisi tinggi yang tersisa sehingga area atas
-        // terlihat kosong (seperti yang kamu lingkari merah). Pasang card di NORTH agar
-        // tinggi card mengikuti konten, dan sisa ruang jadi background (lebih "clean").
+        /**
+         * Form Donatur relatif tidak terlalu panjang.
+         * Jika CardPanel diletakkan di posisi CENTER, BorderLayout akan memaksa card
+         * mengisi sisa tinggi panel sehingga bagian atas terlihat kosong.
+         * Dengan menempatkannya di NORTH, tinggi card mengikuti konten,
+         * sementara sisa area digunakan sebagai background agar tampilan lebih rapi.
+         */
         outer.add(card, BorderLayout.NORTH);
         return outer;
     }
@@ -285,9 +286,11 @@ public class FormPanel extends JPanel {
         card.add(form, BorderLayout.CENTER);
         card.add(actions, BorderLayout.SOUTH);
 
-        // Form Donasi & Penyaluran cukup panjang. Pada ukuran window default (1100x650),
-        // GridBagLayout akan "memampatkan" row sehingga field paling atas bisa terlihat
-        // seperti kepotong. Solusinya: beri scroll yang tetap menjaga style.
+        /**
+         * Form Donasi dan Penyaluran memiliki jumlah field yang cukup banyak.
+         * Untuk mencegah komponen terpotong pada ukuran window tertentu,
+         * form dibungkus dengan JScrollPane agar tetap dapat diakses dengan nyaman.
+         */
         JPanel scrollWrap = new JPanel(new BorderLayout());
         scrollWrap.setOpaque(false);
         scrollWrap.add(card, BorderLayout.NORTH); // NORTH => card mengikuti lebar, tinggi mengikuti konten
@@ -305,7 +308,7 @@ public class FormPanel extends JPanel {
         return outer;
     }
 
-    // ===== helpers UI (label + row) =====
+    // helpers UI (label + row)
     private JLabel label(String text) {
         JLabel l = new JLabel(text);
         l.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -417,8 +420,11 @@ public class FormPanel extends JPanel {
         card.add(form, BorderLayout.CENTER);
         card.add(actions, BorderLayout.SOUTH);
 
-        // Form Penyaluran juga cukup panjang (mirip Donasi). Agar tidak "kepotong"
-        // saat window default (1100x650), bungkus dengan scrollpane yang tetap transparan.
+        /**
+         * Form Penyaluran memiliki banyak komponen input.
+         * Untuk memastikan seluruh field tetap dapat ditampilkan dengan baik,
+         * form dibungkus menggunakan JScrollPane dengan tampilan transparan.
+         */
         JPanel scrollWrap = new JPanel(new BorderLayout());
         scrollWrap.setOpaque(false);
         scrollWrap.add(card, BorderLayout.NORTH);

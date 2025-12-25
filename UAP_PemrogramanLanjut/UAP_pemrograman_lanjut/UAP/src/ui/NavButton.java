@@ -7,9 +7,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * Sidebar navigation button with icon + text, dark theme.
- * Active state draws a translucent rounded highlight with soft shadow.
- * Supports dark mode via ThemeManager.
+ * Tombol navigasi sidebar dengan ikon dan teks, menggunakan tema gelap.
+ * Saat aktif, tombol menampilkan highlight membulat transparan dengan bayangan halus.
+ * Mendukung mode gelap melalui ThemeManager.
  */
 public class NavButton extends JButton {
 
@@ -32,7 +32,7 @@ public class NavButton extends JButton {
         setForeground(new Color(255, 255, 255, 235));
         setFont(new Font("SansSerif", Font.PLAIN, 14));
 
-        // Padding to match modern sidebar
+        // Padding agar tampilan tombol sidebar lebih rapi dan proporsional
         setBorder(new EmptyBorder(14, 18, 14, 18));
         setPreferredSize(new Dimension(220, 56));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
@@ -43,7 +43,7 @@ public class NavButton extends JButton {
         });
     }
 
-    // Backward-compatible constructor (no icon)
+    // Konstruktor tambahan
     public NavButton(String text) {
         this(text, null);
     }
@@ -69,11 +69,9 @@ public class NavButton extends JButton {
         boolean drawBg = active || hover;
 
         if (drawBg) {
-            // shadow (subtle)
             g2.setColor(active ? ThemeManager.getNavButtonShadowActive() : ThemeManager.getNavButtonShadowHover());
             g2.fillRoundRect(6, 8, w - 12, h - 12, arc, arc);
 
-            // highlight background
             if (active) {
                 g2.setColor(ThemeManager.getNavButtonActive());
             } else {
@@ -81,12 +79,11 @@ public class NavButton extends JButton {
             }
             g2.fillRoundRect(4, 4, w - 8, h - 10, arc, arc);
 
-            // subtle border
             g2.setColor(active ? ThemeManager.getNavButtonBorderActive() : ThemeManager.getNavButtonBorderHover());
             g2.drawRoundRect(4, 4, w - 9, h - 11, arc, arc);
         }
 
-        // Text/icon color: keep white; slightly brighter when active
+        // Warna teks dan ikon dibuat lebih terang saat tombol aktif
         setForeground(active ? new Color(255, 255, 255, 255) : new Color(255, 255, 255, 230));
 
         super.paintComponent(g2);
@@ -94,8 +91,8 @@ public class NavButton extends JButton {
     }
 
     /**
-     * Minimal line icon set for sidebar.
-     * Uses component foreground color when painting.
+     * Kumpulan ikon garis sederhana untuk sidebar.
+     * Menggunakan warna foreground dari komponen saat digambar.
      */
     public static class LineIcon implements Icon {
         public enum Type { DASHBOARD, LIST, USER, HISTORY, UP, DOWN }
@@ -139,7 +136,6 @@ public class NavButton extends JButton {
         }
 
         private void paintDashboard(Graphics2D g2, int x, int y, int s) {
-            // 2x2 grid
             int gap = 3;
             int box = (s - gap) / 2;
             g2.drawRoundRect(x, y, box, box, 3, 3);
@@ -149,7 +145,6 @@ public class NavButton extends JButton {
         }
 
         private void paintList(Graphics2D g2, int x, int y, int s) {
-            // bullets + lines
             int cy1 = y + 4;
             int cy2 = y + s / 2;
             int cy3 = y + s - 4;
@@ -164,20 +159,16 @@ public class NavButton extends JButton {
         }
 
         private void paintUser(Graphics2D g2, int x, int y, int s) {
-            // head
             int cx = x + s / 2;
             int headR = 5;
             g2.drawOval(cx - headR, y + 2, headR * 2, headR * 2);
-            // shoulders
             int top = y + 12;
             g2.drawRoundRect(x + 4, top, s - 8, s - top - 3, 10, 10);
         }
 
         private void paintHistory(Graphics2D g2, int x, int y, int s) {
-            // circular arrow
             int r = s - 6;
             g2.drawArc(x + 3, y + 3, r, r, 40, 260);
-            // arrow head
             int ax = x + 6;
             int ay = y + s / 2 + 2;
             g2.drawLine(ax, ay, ax + 4, ay - 4);
@@ -185,7 +176,6 @@ public class NavButton extends JButton {
         }
 
         private void paintUp(Graphics2D g2, int x, int y, int s) {
-            // upload arrow
             int cx = x + s / 2;
             g2.drawLine(cx, y + s - 4, cx, y + 6);
             g2.drawLine(cx, y + 6, cx - 5, y + 11);
@@ -193,7 +183,6 @@ public class NavButton extends JButton {
         }
 
         private void paintDown(Graphics2D g2, int x, int y, int s) {
-            // download arrow
             int cx = x + s / 2;
             g2.drawLine(cx, y + 4, cx, y + s - 6);
             g2.drawLine(cx, y + s - 6, cx - 5, y + s - 11);

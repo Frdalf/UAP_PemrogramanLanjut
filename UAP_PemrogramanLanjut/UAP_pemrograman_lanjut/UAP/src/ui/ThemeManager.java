@@ -4,17 +4,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Centralized theme manager for light/dark mode.
- * All UI components should use colors from this class.
- */
 public final class ThemeManager {
     private static boolean darkMode = false;
     private static final List<Runnable> listeners = new ArrayList<>();
 
     private ThemeManager() {}
 
-    // ===== Theme State =====
+    // Status tema
     public static boolean isDarkMode() {
         return darkMode;
     }
@@ -30,7 +26,7 @@ public final class ThemeManager {
         setDarkMode(!darkMode);
     }
 
-    // ===== Listeners =====
+    // Listeners
     public static void addThemeChangeListener(Runnable listener) {
         listeners.add(listener);
     }
@@ -45,7 +41,7 @@ public final class ThemeManager {
         }
     }
 
-    // ===== Background Colors =====
+    // Background Colors
     public static Color getBackgroundPrimary() {
         return darkMode ? new Color(18, 18, 24) : new Color(247, 250, 255);
     }
@@ -62,7 +58,7 @@ public final class ThemeManager {
         return darkMode ? new Color(55, 55, 70) : new Color(220, 230, 242);
     }
 
-    // ===== Sidebar Colors =====
+    // Sidebar Colors
     public static Color getSidebarGradientTop() {
         return darkMode ? new Color(12, 12, 18) : new Color(18, 33, 58);
     }
@@ -75,7 +71,7 @@ public final class ThemeManager {
         return darkMode ? new Color(100, 100, 180) : new Color(65, 120, 230);
     }
 
-    // ===== Text Colors =====
+    // Text Colors
     public static Color getTextPrimary() {
         return darkMode ? new Color(240, 240, 245) : new Color(20, 28, 44);
     }
@@ -92,7 +88,7 @@ public final class ThemeManager {
         return darkMode ? new Color(240, 240, 250) : new Color(20, 20, 20);
     }
 
-    // ===== Field Colors =====
+    // Field Colors
     public static Color getFieldBorder() {
         return darkMode ? new Color(70, 100, 140) : new Color(120, 195, 235);
     }
@@ -125,7 +121,7 @@ public final class ThemeManager {
         return darkMode ? new Color(80, 160, 220, 55) : new Color(60, 160, 235, 55);
     }
 
-    // ===== Icon Colors =====
+    // Icon Colors
     public static Color getIconColor() {
         return darkMode ? new Color(100, 170, 235) : new Color(45, 120, 215);
     }
@@ -134,7 +130,7 @@ public final class ThemeManager {
         return darkMode ? new Color(45, 50, 65) : new Color(235, 247, 255);
     }
 
-    // ===== Accent Colors =====
+    //  Accent Colors
     public static Color getPillBlue() {
         return darkMode ? new Color(60, 140, 240) : new Color(40, 125, 235);
     }
@@ -143,7 +139,7 @@ public final class ThemeManager {
         return darkMode ? new Color(50, 110, 190) : new Color(25, 90, 170);
     }
 
-    // ===== Chart Colors =====
+    // Chart Colors
     public static Color getChartLine() {
         return darkMode ? new Color(70, 140, 220) : new Color(27, 74, 132);
     }
@@ -156,7 +152,7 @@ public final class ThemeManager {
         return darkMode ? new Color(45, 50, 60) : Color.WHITE;
     }
 
-    // ===== Table Colors =====
+    // Table Colors
     public static Color getTableHeaderBackground() {
         return darkMode ? new Color(35, 40, 55) : new Color(240, 245, 250);
     }
@@ -181,7 +177,7 @@ public final class ThemeManager {
         return darkMode ? new Color(50, 55, 70) : new Color(220, 230, 242);
     }
 
-    // ===== Button Colors =====
+    //  Button Colors
     public static Color getButtonPrimary() {
         return darkMode ? new Color(50, 130, 230) : new Color(40, 125, 235);
     }
@@ -202,7 +198,7 @@ public final class ThemeManager {
         return darkMode ? new Color(75, 80, 100) : new Color(110, 118, 132);
     }
 
-    // ===== Stat Card Colors =====
+    // Statistics Card Colors
     public static Color getStatCardDonor() {
         return darkMode ? new Color(40, 85, 145) : new Color(27, 74, 132);
     }
@@ -215,7 +211,7 @@ public final class ThemeManager {
         return darkMode ? new Color(55, 155, 115) : new Color(64, 170, 120);
     }
 
-    // ===== Dashboard Blob Colors =====
+    // Dashboard Blob Colors
     public static Color getBlobLight() {
         return darkMode ? new Color(60, 65, 90, 60) : new Color(255, 255, 255, 150);
     }
@@ -224,7 +220,7 @@ public final class ThemeManager {
         return darkMode ? new Color(45, 70, 110, 80) : new Color(210, 232, 248, 140);
     }
 
-    // ===== Combo/Popup Colors =====
+    // Combo/Popup Colors
     public static Color getPopupBackground() {
         return darkMode ? new Color(35, 38, 50) : new Color(245, 252, 255);
     }
@@ -237,7 +233,7 @@ public final class ThemeManager {
         return Color.WHITE;
     }
 
-    // ===== Nav Button Colors =====
+    // Nav Button Colors
     public static Color getNavButtonActive() {
         return darkMode ? new Color(255, 255, 255, 22) : new Color(255, 255, 255, 18);
     }
@@ -262,7 +258,7 @@ public final class ThemeManager {
         return new Color(0, 0, 0, darkMode ? 45 : 35);
     }
 
-    // ===== Scrollbar Colors =====
+    //  Scrollbar Colors
     public static Color getScrollbarThumb() {
         return darkMode ? new Color(70, 75, 95) : new Color(180, 190, 205);
     }
@@ -271,7 +267,7 @@ public final class ThemeManager {
         return darkMode ? new Color(35, 38, 50) : new Color(240, 243, 248);
     }
 
-    // ===== Tab Colors =====
+    // Tab Colors
     public static Color getTabActiveBackground() {
         return darkMode ? new Color(50, 130, 230) : new Color(40, 125, 235);
     }
@@ -284,7 +280,7 @@ public final class ThemeManager {
         return darkMode ? new Color(0, 0, 0, 30) : new Color(0, 0, 0, 22);
     }
 
-    // ===== Toast Colors =====
+    // Toast Colorsx
     public static Color getToastBackground() {
         return darkMode ? new Color(45, 50, 65) : new Color(50, 55, 65);
     }

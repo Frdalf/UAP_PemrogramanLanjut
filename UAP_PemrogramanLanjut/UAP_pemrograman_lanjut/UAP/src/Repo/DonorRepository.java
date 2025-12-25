@@ -41,7 +41,7 @@ public class DonorRepository {
             String line;
             boolean first = true;
             while ((line = br.readLine()) != null) {
-                if (first) { first = false; continue; } // skip header
+                if (first) { first = false; continue; }
                 if (line.trim().isEmpty()) continue;
 
                 String[] p = line.split(",", -1);

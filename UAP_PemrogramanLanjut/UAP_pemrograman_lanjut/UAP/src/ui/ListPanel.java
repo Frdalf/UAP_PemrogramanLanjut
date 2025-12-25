@@ -6,10 +6,8 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
 import java.awt.event.*;
 
-/**
- * Halaman List (Donatur/Donasi Masuk/Penyaluran) dengan style "soft blue"
- * yang konsisten dengan FormPanel dan ReportPanel.
- */
+// Halaman List (Donatur/Donasi Masuk/Penyaluran)
+
 public class ListPanel extends JPanel {
     private final DonorTab donorTab;
     private final DonationTab donationTab;
@@ -19,7 +17,7 @@ public class ListPanel extends JPanel {
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        // Root background
+
         SoftFormUI.FormBackground root = new SoftFormUI.FormBackground();
         root.setLayout(new BorderLayout(18, 18));
         root.setBorder(new EmptyBorder(26, 26, 26, 26));
@@ -27,7 +25,7 @@ public class ListPanel extends JPanel {
 
         JLabel title = new JLabel("List Donatur");
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        // Title uses theme color
+        // warna judul sesuai tema
         title.setForeground(ThemeManager.getTitleColor());
         ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
         root.add(title, BorderLayout.NORTH);
@@ -39,12 +37,11 @@ public class ListPanel extends JPanel {
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(14, 14, 14, 14));
 
-        // Tabs
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(new Font("SansSerif", Font.BOLD, 13));
         tabs.setOpaque(false);
         tabs.setBorder(BorderFactory.createEmptyBorder());
-        // Supaya tab tidak menampilkan focus rectangle (dotted) bawaan OS/LAF
+        // Menonaktifkan focus rectangle bawaan OS agar tampilan tab lebih bersih
         tabs.setFocusable(false);
         tabs.setUI(new SoftTabsUI());
 
@@ -110,7 +107,8 @@ public class ListPanel extends JPanel {
     }
 
     /**
-     * UI tab yang lebih "pills" dan soft, agar selaras dengan tema form.
+     * Custom UI untuk tab dengan bentuk membulat (pill-style)
+     * agar selaras dengan tema form.
      */
     private static class SoftTabsUI extends BasicTabbedPaneUI {
         @Override
@@ -125,7 +123,7 @@ public class ListPanel extends JPanel {
         protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            // transparan (nggak gambar bar default)
+            // Area tab dibuat transparan tanpa menggambar bar default
             g2.dispose();
             super.paintTabArea(g, tabPlacement, selectedIndex);
         }
@@ -147,7 +145,6 @@ public class ListPanel extends JPanel {
 	            if (hv instanceof Integer) hoverIndex = (Integer) hv;
 	            boolean isHover = (!isSelected) && (tabIndex == hoverIndex);
 	            if (isHover) {
-	                // shadow tipis agar terasa "terangkat"
 	                g2.setColor(ThemeManager.getTabHoverShadow());
 	                g2.fillRoundRect(px, py + 3, pw, ph, arc, arc);
 	                py -= 1;
@@ -170,7 +167,7 @@ public class ListPanel extends JPanel {
         @Override
         protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
                                       int x, int y, int w, int h, boolean isSelected) {
-            // Hilangkan border default BasicTabbedPaneUI (yang bikin tab kelihatan "kotak"/ada garis pemisah)
+            // Hilangkan border default BasicTabbedPaneUI
         }
 
         @Override
@@ -190,7 +187,6 @@ public class ListPanel extends JPanel {
 
         @Override
         protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
-            // no border
         }
     }
 }

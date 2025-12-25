@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Dark gradient sidebar panel (matches modern look in mockup).
- * Supports dark mode via ThemeManager.
+ * Panel sidebar dengan gradasi warna gelap
+ * Mendukung dark mode melalui ThemeManager.
  */
 public class SidebarPanel extends JPanel {
 
@@ -22,7 +22,7 @@ public class SidebarPanel extends JPanel {
         int w = getWidth();
         int h = getHeight();
 
-        // Base vertical gradient
+
         GradientPaint gp = new GradientPaint(
                 0, 0, ThemeManager.getSidebarGradientTop(),
                 0, h, ThemeManager.getSidebarGradientBottom()
@@ -30,7 +30,6 @@ public class SidebarPanel extends JPanel {
         g2.setPaint(gp);
         g2.fillRect(0, 0, w, h);
 
-        // Soft radial glow (top-left)
         g2.setComposite(AlphaComposite.SrcOver.derive(ThemeManager.isDarkMode() ? 0.25f : 0.35f));
         g2.setPaint(new RadialGradientPaint(
                 new Point(w / 2, h / 5),

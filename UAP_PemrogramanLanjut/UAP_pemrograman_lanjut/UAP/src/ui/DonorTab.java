@@ -11,9 +11,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Tab Donatur (List) dengan kontrol soft-blue: Search + Sort + tombol aksi.
- * Logic lama tetap, hanya layout dan style yang dirapikan.
+ * Tab donatur yang menampilkan daftar data donor
+ * dengan fitur pencarian, pengurutan, dan tombol aksi.
  */
+
 public class DonorTab extends JPanel {
     private final MainFrame app;
 
@@ -38,10 +39,10 @@ public class DonorTab extends JPanel {
         setBorder(new EmptyBorder(6, 6, 6, 6));
         setOpaque(false);
 
-        // ===== TOP CONTROLS (responsive, supaya tombol aksi nggak ketutup) =====
+        // Kontrol bagian atas (responsif agar tombol aksi tidak tertutup)
         add(buildControls(), BorderLayout.NORTH);
 
-        // ===== TABLE (Rounded + Theme) =====
+        // Tabel (tema)
         JScrollPane sp = new JScrollPane(table);
         sp.setBorder(BorderFactory.createEmptyBorder());
         sp.setOpaque(false);
@@ -57,7 +58,7 @@ public class DonorTab extends JPanel {
         tableWrap.add(sp, BorderLayout.CENTER);
         add(tableWrap, BorderLayout.CENTER);
 
-        // ===== EVENTS =====
+
         txtSearch.getDocument().addDocumentListener((SimpleDocumentListener) e -> refreshTable());
         cmbSort.addActionListener(e -> refreshTable());
 
@@ -99,7 +100,7 @@ public class DonorTab extends JPanel {
         btnEdit.addActionListener(e -> onEdit());
         btnDelete.addActionListener(e -> onDelete());
 
-        // Row 1: Search + Sort
+
         JPanel row1 = new JPanel(new GridBagLayout());
         row1.setOpaque(false);
         GridBagConstraints g = new GridBagConstraints();
@@ -129,7 +130,7 @@ public class DonorTab extends JPanel {
         g.insets = new Insets(0, 0, 0, 0);
         row1.add(fSort, g);
 
-        // Row 2: actions (align right)
+
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         row2.setOpaque(false);
         row2.add(btnAdd);

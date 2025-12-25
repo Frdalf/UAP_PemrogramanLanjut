@@ -4,7 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Rounded panel that supports both custom colors and theme-aware colors.
+ * Panel sudut membulat yang mendukung warna kustom
+ * maupun warna yang mengikuti tema aplikasi.
  */
 public class RoundedPanel extends JPanel {
     private final int radius;
@@ -24,11 +25,12 @@ public class RoundedPanel extends JPanel {
     }
 
     /**
-     * Use ThemeManager's table background color (auto-updates with theme).
+     * Menggunakan warna background tabel dari ThemeManager
+     * dan otomatis menyesuaikan ketika tema berubah.
      */
     public RoundedPanel useTableBackground() {
         this.useThemeTableBg = true;
-        // Register listener to repaint when theme changes
+        // Mendaftarkan listener agar panel di-repaint saat tema berubah
         ThemeManager.addThemeChangeListener(() -> {
             if (useThemeTableBg) {
                 repaint();
@@ -46,7 +48,6 @@ public class RoundedPanel extends JPanel {
         int w = getWidth();
         int h = getHeight();
 
-        // Use theme color if enabled, otherwise use custom bg
         Color fillColor = useThemeTableBg ? getTableWrapBackground() : bg;
         g2.setColor(fillColor);
         g2.fillRoundRect(0, 0, w, h, radius, radius);

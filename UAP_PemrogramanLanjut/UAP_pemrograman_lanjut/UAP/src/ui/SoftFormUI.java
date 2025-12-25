@@ -11,15 +11,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-/**
- * Kumpulan komponen UI ringan untuk membuat tampilan form "soft blue"
- * (mirip mockup yang kamu kirim) tanpa butuh aset icon eksternal.
- * Supports dark mode via ThemeManager.
- */
+
 public final class SoftFormUI {
     private SoftFormUI() {}
 
-    // ===== Dynamic Colors (from ThemeManager) =====
+    // Warna dinamis
     public static Color getTitleBlue() { return ThemeManager.getTitleColor(); }
     public static Color getPillBlue() { return ThemeManager.getPillBlue(); }
     public static Color getFieldBorder() { return ThemeManager.getFieldBorder(); }
@@ -29,7 +25,7 @@ public final class SoftFormUI {
     public static Color getFieldFillDisabled() { return ThemeManager.getFieldFillDisabled(); }
     public static Color getIconBlue() { return ThemeManager.getIconColor(); }
 
-    // Legacy constants for backwards compatibility (will use dynamic values)
+    // Konstanta lama untuk kompatibilitas ke belakang (tetap memakai nilai dinamis)
     @Deprecated public static final Color TITLE_BLUE = new Color(20, 20, 20);
     @Deprecated public static final Color PILL_BLUE = new Color(40, 125, 235);
     @Deprecated public static final Color FIELD_BORDER = new Color(120, 195, 235);
@@ -39,7 +35,7 @@ public final class SoftFormUI {
     @Deprecated public static final Color FIELD_FILL_DISABLED = new Color(242, 245, 248);
     @Deprecated public static final Color ICON_BLUE = new Color(45, 120, 215);
 
-    // ===== Styling helper untuk JComboBox supaya menyatu dengan IconField =====
+    //Styling helper untuk JComboBox
     private static void applySoftComboBoxStyle(JComboBox<?> cb) {
         cb.setBorder(null);
         cb.setOpaque(false);
@@ -47,19 +43,15 @@ public final class SoftFormUI {
         cb.setFont(new Font("SansSerif", Font.PLAIN, 14));
         cb.setForeground(ThemeManager.getTextPrimary());
         
-        // Add theme listener to update foreground
         ThemeManager.addThemeChangeListener(() -> {
             cb.setForeground(ThemeManager.getTextPrimary());
             cb.repaint();
         });
 
-        // Renderer: saat tampil di field (index == -1) dibuat transparan
         cb.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
-                // IMPORTANT: untuk tampilan di field (index < 0), jangan ikut "cellHasFocus"
-                // karena DefaultListCellRenderer akan menggambar outline fokus (kotak abu-abu).
                 JLabel l;
                 if (index < 0) {
                     l = (JLabel) super.getListCellRendererComponent(list, value, index, false, false);
@@ -112,14 +104,12 @@ public final class SoftFormUI {
 
             @Override
             public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
-                // jangan gambar background bawaan, biar menyatu dengan IconField
             }
 
 
 
             @Override
             public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
-                // Paksa renderer tidak "focus" supaya tidak menggambar focus-rect/outline.
                 ListCellRenderer<Object> r = (ListCellRenderer<Object>) comboBox.getRenderer();
                 Component c = r.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
                 c.setFont(comboBox.getFont());
@@ -127,14 +117,11 @@ public final class SoftFormUI {
                     jc.setOpaque(false);
                     jc.setBorder(new EmptyBorder(4, 8, 4, 8));
                 }
-                // Jangan gambar background bawaan; IconField sudah menggambar fill-nya.
                 currentValuePane.paintComponent(g, c, comboBox,
                         bounds.x, bounds.y, bounds.width, bounds.height, true);
             }
             @Override
             protected ComboPopup createPopup() {
-                // Jangan pakai popup default LAF (kadang memunculkan artefak/"ghost" teks)
-                // Buat BasicComboPopup yang benar-benar opaque (background solid).
                 return new BasicComboPopup(comboBox) {
                     @Override
                     protected void configureList() {
@@ -164,7 +151,7 @@ public final class SoftFormUI {
 
     }
 
-    // ===== Background =====
+    //  Background
     public static class FormBackground extends JPanel {
         public FormBackground() {
             setOpaque(false);
@@ -195,7 +182,7 @@ public final class SoftFormUI {
         }
     }
 
-    // ===== Card (white rounded + soft shadow) =====
+    // Card (white rounded + soft shadow) =
     public static class CardPanel extends JPanel {
         private final int radius;
 
@@ -212,7 +199,7 @@ public final class SoftFormUI {
             int w = getWidth();
             int h = getHeight();
 
-            // Shadow (drawn inside bounds, so it never looks "kepotong")
+
             g2.setColor(new Color(0, 0, 0, ThemeManager.isDarkMode() ? 30 : 18));
             int shX = 5, shY = 7;
             g2.fillRoundRect(shX, shY, Math.max(1, w - shX - 1), Math.max(1, h - shY - 1), radius, radius);
@@ -228,7 +215,7 @@ public final class SoftFormUI {
         }
     }
 
-    // ===== Pill label (tab-like) =====
+    // Pill label (tab-like)
     public static class PillLabel extends JLabel {
         public PillLabel(String text) {
             super(text);
@@ -253,7 +240,7 @@ public final class SoftFormUI {
         }
     }
 
-    // ===== Icon types =====
+    // Icon types
     public enum IconType {
         ID, USER, PHONE, PIN,
         CALENDAR, LIST, TAG, MONEY,
@@ -261,7 +248,6 @@ public final class SoftFormUI {
         SEARCH
     }
 
-    /** Icon sederhana (vector) supaya tidak butuh file gambar. */
     public static class SoftIcon implements Icon {
         private final IconType type;
         private final int size;
@@ -376,7 +362,7 @@ public final class SoftFormUI {
         }
     }
 
-    // ===== Field wrapper (rounded input with icon) =====
+    // Field wrapper (rounded input dengan icon)
     public static class IconField extends JPanel {
         private final JComponent inner;
         private boolean focused = false;
@@ -401,16 +387,13 @@ public final class SoftFormUI {
             prepareInner(inner);
             add(inner, BorderLayout.CENTER);
 
-            // focus tracking
             installFocusTracker(inner);
 
-            // hover tracking (micro-interaction)
             MouseAdapter hover = new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e) { hovering = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { hovering = false; repaint(); }
             };
             addMouseListener(hover);
-            // also attach to inner so moving mouse over the actual input keeps the hover state
             installHoverTracker(inner, hover);
         }
 
@@ -454,7 +437,6 @@ public final class SoftFormUI {
         }
 
         private void installFocusTracker(JComponent c) {
-            // track focus on inner components (textfield, combobox editor, spinner editor, etc.)
             if (c instanceof JTextField tf) {
                 tf.addFocusListener(new FocusAdapter() {
                     @Override public void focusGained(FocusEvent e) { focused = true; repaint(); }
@@ -512,12 +494,12 @@ public final class SoftFormUI {
 
             boolean enabled = inner.isEnabled();
 
-            // shadow (offset but still inside bounds)
+            // shadow
             g2.setColor(new Color(0, 0, 0, ThemeManager.isDarkMode() ? 20 : 12));
             int shX = 3, shY = 5;
             g2.fillRoundRect(shX, shY, Math.max(1, w - shX - 1), Math.max(1, h - shY - 1), radius, radius);
 
-            // fill
+
             if (!enabled) {
                 g2.setColor(ThemeManager.getFieldFillDisabled());
                 g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
@@ -527,14 +509,13 @@ public final class SoftFormUI {
                 g2.fillRoundRect(0, 0, Math.max(1, w - 1), Math.max(1, h - 1), radius, radius);
             }
 
-            // border + subtle glow (micro-interaction)
+
             Color baseBorder;
             if (!enabled) baseBorder = ThemeManager.getFieldBorderDisabled();
             else if (focused) baseBorder = ThemeManager.getFieldFocusBorder();
             else if (hovering) baseBorder = ThemeManager.getFieldHoverBorder();
             else baseBorder = ThemeManager.getFieldBorder();
 
-            // glow when focused
             if (enabled && focused) {
                 int inset = 2;
                 g2.setColor(ThemeManager.getFieldFocusGlow());
@@ -542,7 +523,7 @@ public final class SoftFormUI {
                 g2.drawRoundRect(inset, inset, Math.max(1, w - inset * 2 - 1), Math.max(1, h - inset * 2 - 1), radius, radius);
             }
 
-            // main border
+
             g2.setColor(baseBorder);
             g2.setStroke(new BasicStroke((enabled && (focused || hovering)) ? 2f : 1.2f,
                     BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));

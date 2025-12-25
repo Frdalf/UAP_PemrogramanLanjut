@@ -12,25 +12,25 @@ import java.time.LocalDate;
 import java.util.*;
 
 /**
- * Laporan/History dengan style "soft blue" seperti form input.
+ * Laporan/History.
  * Berisi filter + search, tabel history, ringkasan, dan insight.
  */
 public class ReportPanel extends JPanel {
     private final MainFrame app;
 
-    // ===== Controls =====
+    // Controls
     private final JComboBox<String> cmbFilter = new JComboBox<>(new String[]{"Semua", "Hari ini", "Bulan ini"});
     private final JTextField txtSearch = new JTextField();
 
-    // ===== Summary labels =====
+    // Label ringkasan (uang masuk, keluar, dan saldo)
     private final JLabel lblMasukVal = new JLabel("-");
     private final JLabel lblKeluarVal = new JLabel("-");
     private final JLabel lblSaldoVal = new JLabel("-");
 
-    // ===== Insights =====
+    // insight / ringkasan analisis
     private final JTextArea txtInsights = new JTextArea(8, 20);
 
-    // ===== Table =====
+    // Tabel
     private final DefaultTableModel model = new DefaultTableModel(
             new Object[]{"Tanggal", "Tipe", "Pihak", "Jenis", "Kategori", "Nominal", "Barang", "Qty", "Catatan"}, 0
     ) {
@@ -44,7 +44,6 @@ public class ReportPanel extends JPanel {
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        // Root background
         SoftFormUI.FormBackground root = new SoftFormUI.FormBackground();
         root.setLayout(new BorderLayout(18, 18));
         root.setBorder(new EmptyBorder(26, 26, 26, 26));
@@ -52,7 +51,6 @@ public class ReportPanel extends JPanel {
 
         JLabel title = new JLabel("Laporan / History");
         title.setFont(new Font("SansSerif", Font.BOLD, 56));
-        // Title uses theme color
         title.setForeground(ThemeManager.getTitleColor());
         ThemeManager.addThemeChangeListener(() -> title.setForeground(ThemeManager.getTitleColor()));
         root.add(title, BorderLayout.NORTH);
@@ -71,11 +69,9 @@ public class ReportPanel extends JPanel {
         outer.add(card, BorderLayout.CENTER);
         root.add(outer, BorderLayout.CENTER);
 
-        // listeners
         cmbFilter.addActionListener(e -> refresh());
         txtSearch.getDocument().addDocumentListener((SimpleDocumentListener) e -> refresh());
 
-        // static config
         txtInsights.setEditable(false);
         txtInsights.setLineWrap(true);
         txtInsights.setWrapStyleWord(true);
@@ -87,10 +83,7 @@ public class ReportPanel extends JPanel {
     }
 
     private JPanel buildControls() {
-        // Responsive layout: di window kecil tombol export jangan ketutup.
-        // Kita bikin 2 baris:
-        //  - Baris 1: Filter + Search
-        //  - Baris 2: Export buttons (align kanan)
+        // Responsive layout: di window kecil tombol export jangan ketutup
         JPanel controls = new JPanel(new GridBagLayout());
         controls.setOpaque(false);
 
@@ -101,10 +94,10 @@ public class ReportPanel extends JPanel {
         fFilter.setPreferredSize(new Dimension(210, 46));
 
         SoftFormUI.IconField fSearch = new SoftFormUI.IconField(SoftFormUI.IconType.SEARCH, txtSearch);
-        // Search field fleksibel: akan melebar/mengecil mengikuti lebar window.
+        // Search field fleksibel
         fSearch.setPreferredSize(new Dimension(360, 46));
 
-        // Row 1: grid supaya fSearch bisa shrink/expand
+        // Row 1: grid
         JPanel row1 = new JPanel(new GridBagLayout());
         row1.setOpaque(false);
         GridBagConstraints g = new GridBagConstraints();
@@ -263,9 +256,7 @@ public class ReportPanel extends JPanel {
         return l;
     }
 
-    // ===== Public API =====
     public void refresh() {
-        // ===== Summary =====
         double masuk = app.totalUangMasuk();
         double keluar = app.totalUangKeluar();
         double saldo = app.saldoUang();
@@ -275,7 +266,7 @@ public class ReportPanel extends JPanel {
 
         updateInsights();
 
-        // ===== Build history rows =====
+        // Menyusun baris data riwayat donasi dan penyaluran
         java.util.List<Row> rows = new ArrayList<>();
         for (Donation d : app.getDonations()) rows.add(Row.fromDonation(d));
         for (Distribution d : app.getDistributions()) rows.add(Row.fromDistribution(d));
@@ -302,7 +293,7 @@ public class ReportPanel extends JPanel {
         // Sort tanggal desc
         finalRows.sort(Comparator.comparing((Row r) -> r.tanggal).reversed());
 
-        // Render
+        // Menampilkan data ke tabel
         model.setRowCount(0);
         for (Row r : finalRows) {
             Object nominalDisp = "UANG".equalsIgnoreCase(r.jenis) ? idr(r.nominal) : "";
@@ -465,7 +456,7 @@ public class ReportPanel extends JPanel {
     }
 
     private void updateInsights() {
-        // ---- Top Donor (berdasarkan total donasi uang) ----
+        //  Top Donor (berdasarkan total donasi uang)
         java.util.Map<String, Double> donorTotal = new java.util.HashMap<>();
         for (Model.Donation d : app.getDonations()) {
             if ("UANG".equalsIgnoreCase(d.getJenis())) {
@@ -474,7 +465,6 @@ public class ReportPanel extends JPanel {
             }
         }
 
-        // Map donorId -> nama (biar tampil nama)
         java.util.Map<String, String> donorName = new java.util.HashMap<>();
         for (Model.Donor dn : app.getDonors()) {
             donorName.put(dn.getDonorId(), dn.getNama());
@@ -483,7 +473,7 @@ public class ReportPanel extends JPanel {
         java.util.List<java.util.Map.Entry<String, Double>> top = new java.util.ArrayList<>(donorTotal.entrySet());
         top.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
-        // ---- Rekap kategori donasi uang & penyaluran uang ----
+        //  Rekap kategori donasi uang & penyaluran uang
         java.util.Map<String, Double> donasiPerKategori = new java.util.HashMap<>();
         for (Model.Donation d : app.getDonations()) {
             if ("UANG".equalsIgnoreCase(d.getJenis())) {
@@ -549,8 +539,8 @@ public class ReportPanel extends JPanel {
 
     private static class Row {
         LocalDate tanggal;
-        String tipe;   // DONASI / PENYALURAN
-        String pihak;  // donorId / penerima
+        String tipe;
+        String pihak;
         String jenis;
         String kategori;
         double nominal;

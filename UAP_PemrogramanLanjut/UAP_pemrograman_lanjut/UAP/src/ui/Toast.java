@@ -31,7 +31,7 @@ public final class Toast {
         w.setContentPane(panel);
         w.pack();
 
-        // Position bottom-right inside owner bounds
+        // Mengatur posisi toast di pojok kanan bawah area window induk
         Rectangle b = owner.getBounds();
         Insets insets = owner.getInsets();
         int margin = 18;
@@ -43,7 +43,7 @@ public final class Toast {
         w.setAlwaysOnTop(true);
         w.setVisible(true);
 
-        // Animation: fade in -> hold -> fade out
+        // Animasi: fade in -> hold -> fade out
         int tickMs = 40;
         int fadeInMs = 160;
         int holdMs = 1400;
@@ -84,7 +84,7 @@ public final class Toast {
         return v;
     }
 
-    /** Panel toast dengan rounded + soft shadow. */
+    // Panel toast dengan rounded + soft shadow
     private static class ToastPanel extends JPanel {
         private float alpha = 0f;
         private final String text;

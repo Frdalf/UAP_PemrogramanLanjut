@@ -14,8 +14,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Tab Penyaluran (List) dengan kontrol soft-blue: Search + Sort + tombol aksi.
+ * Tab penyaluran yang berisi daftar data penyaluran
+ * dengan fitur search, sort, dan tombol aksi.
  */
+
 public class DistributionTab extends JPanel {
     private final MainFrame app;
 
@@ -58,7 +60,6 @@ public class DistributionTab extends JPanel {
         tableWrap.add(sp, BorderLayout.CENTER);
         add(tableWrap, BorderLayout.CENTER);
 
-        // Nominal & Qty rata kanan tapi tetap ikut zebra theme
         installRightAlignedColumns();
 
         txtSearch.getDocument().addDocumentListener((SimpleDocumentListener) e -> refreshTable());
@@ -164,8 +165,8 @@ public class DistributionTab extends JPanel {
     }
 
     /**
-     * Samakan tampilan: kolom numeric tetap ikut zebra theme dan rata kiri
-     * (biar konsisten dengan kolom lain).
+     * Menyesuaikan tampilan kolom numerik agar tetap rapi
+     * dan konsisten dengan gaya tabel lainnya.
      */
     private void installRightAlignedColumns() {
         DefaultTableCellRenderer right = new DefaultTableCellRenderer() {
@@ -190,7 +191,7 @@ public class DistributionTab extends JPanel {
 
         try {
             table.getColumnModel().getColumn(5).setCellRenderer(right); // Nominal
-            table.getColumnModel().getColumn(7).setCellRenderer(right); // Qty
+            table.getColumnModel().getColumn(7).setCellRenderer(right); // Jumlah
         } catch (Exception ignored) {}
     }
 
